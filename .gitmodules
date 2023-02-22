@@ -1,0 +1,8 @@
+[submodule "imgui"]
+	path = vendor/imgui
+	url =  https://github.com/ocornut/imgui
+
+
+[submodule "Box2D"]
+	path = vendor/Box2D
+	url = https://github.com/erincatto/box2d
