@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 if(APPLE)
     find_package(SDL2 REQUIRED)
+    find_package(glfw3 REQUIRED)
 else()
     find_package(OpenGL REQUIRED)
     add_subdirectory(vendor/SDL)
