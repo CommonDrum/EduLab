@@ -2,7 +2,10 @@
 	path = vendor/imgui
 	url =  https://github.com/ocornut/imgui
 
-
-[submodule "Box2D"]
+[submodule "box2d"]
 	path = vendor/Box2D
 	url = https://github.com/erincatto/box2d
+
+[submodule "sdl2"]
+    path = vendor/SDL
+    url = https://github.com/libsdl-org/SDL.git
