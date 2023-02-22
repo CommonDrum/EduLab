@@ -21,7 +21,7 @@ include_directories(vendor/box2d/include
 
 
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp src/GUI/MainMenu.cpp src/GUI/MainMenu.h)
 
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL" "-framework Metal" "-framework Foundation" "-framework QuartzCore")
