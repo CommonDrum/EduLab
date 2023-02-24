@@ -26,7 +26,7 @@ include_directories(vendor/box2d/include
 
 
 
-add_executable(${PROJECT_NAME} main.cpp src/GUI/MainMenu.cpp src/GUI/MainMenu.h vendor/imgui/imgui.cpp vendor/imgui/imgui_demo.cpp vendor/imgui/imgui_draw.cpp vendor/imgui/imgui_internal.h vendor/imgui/imgui_tables.cpp vendor/imgui/imgui_widgets.cpp vendor/imgui/imstb_rectpack.h vendor/imgui/imstb_textedit.h vendor/imgui/imstb_truetype.h vendor/imgui/backends/imgui_impl_opengl3.cpp vendor/imgui/backends/imgui_impl_opengl3_loader.h vendor/imgui/backends/imgui_impl_glfw.cpp)
+add_executable(${PROJECT_NAME} main.cpp src/GUI/MainMenu.cpp src/GUI/MainMenu.h vendor/imgui/imgui.cpp vendor/imgui/imgui_demo.cpp vendor/imgui/imgui_draw.cpp vendor/imgui/imgui_internal.h vendor/imgui/imgui_tables.cpp vendor/imgui/imgui_widgets.cpp vendor/imgui/imstb_rectpack.h vendor/imgui/imstb_textedit.h vendor/imgui/imstb_truetype.h vendor/imgui/backends/imgui_impl_opengl3.cpp vendor/imgui/backends/imgui_impl_opengl3_loader.h vendor/imgui/backends/imgui_impl_glfw.cpp src/Scene/Camera.cpp src/Scene/Camera.h src/core.h)
 
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL" "-framework Metal" "-framework Foundation" "-framework QuartzCore")
