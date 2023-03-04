@@ -3,7 +3,7 @@
 	url =  https://github.com/ocornut/imgui
 
 [submodule "box2d"]
-	path = vendor/Box2D
+	path = vendor/box2d
 	url = https://github.com/erincatto/box2d
 
 [submodule "sdl2"]
