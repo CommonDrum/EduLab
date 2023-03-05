@@ -9,14 +9,18 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-
 #include <stdio.h>
+#include <SDL.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
 #else
 #include <SDL_opengl.h>
 #endif
 
+// This example can also compile and run with Emscripten! See 'Makefile.emscripten' for details.
+#ifdef __EMSCRIPTEN__
+#include "../libs/emscripten/emscripten_mainloop_stub.h"
+#endif
 
 
 
@@ -24,13 +28,12 @@
 class GUI {
 public:
 
-    explicit GUI(SDL_Window* window, SDL_GLContext glContext,const char* glslVersion,SDL_Event* event);
+
     ~GUI();
     int Init();
     void Exit();
-    void Render();
-    void PollEvents();
-    void CreateWindow();
+    void simpleWindow();
+    void simpleWindow2();
     bool done = false;
 
 private:
@@ -41,11 +44,6 @@ private:
 
     ImGuiIO m_io;
     ImGuiStyle m_style;
-
-    // Our state
-    bool m_show_demo_window = true;
-    bool m_show_another_window = false;
-    ImVec4 m_clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
 

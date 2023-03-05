@@ -36,6 +36,7 @@ private:
     Camera2D* m_camera;
     std::vector<Entity*> m_objects;
     b2World* m_worldLocal;
+
     int m_windowWidth{};
     int m_windowHeight{};
 

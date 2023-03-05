@@ -32,7 +32,7 @@ class Scene2DManager {
         SDL_Renderer *m_renderer;
 
     };
-};
+
 
 
 #endif //EDULAB_SCENE2DMANAGER_H

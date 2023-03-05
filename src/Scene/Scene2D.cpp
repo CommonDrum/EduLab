@@ -28,12 +28,6 @@ void Scene2D::RemoveObject(int index) {
     m_objects.erase(m_objects.begin() + index);
 }
 
-void Scene2D::Resize(int32 width, int32 height) {
-    m_windowWidth = width;
-    m_windowHeight = height;
-    m_camera->m_width = width;
-    m_camera->m_height = height;
-}
 
 std::vector<Entity *> Scene2D::GetObjects() {
     return m_objects;
