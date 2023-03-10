@@ -19,19 +19,18 @@ class Scene2DManager {
         }
         Scene2DManager();
         ~Scene2DManager();
-        void AddScene(Scene2D* scene);
-        void RemoveScene(int index);
-        void SetCurrentScene(Scene2D* index);
+        void CreateScene(std::string name);
+        void RemoveScene(std::string name);
+        void SetCurrentScene(std::string name);
         void RenderCurrentScene();
-        Scene2D* GetCurrentScene();
-        void ClearScenes();
     private:
         std::vector<Scene2D*> m_scenes;
         Scene2D* m_currentScene;
-        SDL_Window *m_window;
-        SDL_Renderer *m_renderer;
 
-    };
+
+
+
+};
 
 
 

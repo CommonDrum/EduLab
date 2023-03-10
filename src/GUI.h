@@ -26,28 +26,22 @@
 
 
 class GUI {
-public:
-
-
-    ~GUI();
-    int Init();
-    void Exit();
-    void simpleWindow();
-    void simpleWindow2();
-    bool done = false;
-
 private:
-    SDL_Window* m_window;
-    SDL_GLContext m_glContext{};
-    SDL_Event* m_event;
+
     const char* glsl_version;
-
     ImGuiIO m_io;
-    ImGuiStyle m_style;
 
 
+public:
+    void tools();
+    void fileExplorer();
+    void menuBar(bool *done);
+    void mainViewport();
+    void placeholder(SDL_Window *sdl_window);
 
+    void mainViewport(b2World *world);
 };
+
 
 
 #endif //EDULAB_GUI_H

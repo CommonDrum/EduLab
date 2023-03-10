@@ -9,22 +9,20 @@
 
 // Camera is a struct that will be applied to entities to get their position on the screen (in pixels)
 struct Camera2D {
-    explicit Camera2D(int32 width = DEFAULT_WIDTH, int32 height = DEFAULT_HEIGHT, b2Vec2 center = b2Vec2(0.0f, 0.0f), float zoom = 1.0f);
+    Camera2D(int32 posX, int32 posY, float zoom);
     void ResetView();
     float m_zoom;
-    b2Vec2 m_center;
-    int32 m_width;
-    int32 m_height;
+    int32 pos_x;
+    int32 pos_y;
 };
 
 class Scene2D {
 public:
-    explicit Scene2D(int32 width = DEFAULT_WIDTH,int32 high = DEFAULT_HEIGHT ,b2Vec2 gravity = b2Vec2(0.0f, -10.0f));
+    explicit Scene2D(std::string name,b2Vec2 gravity = b2Vec2(0.0f, -10.0f));
     ~Scene2D();
+    std::string GetName();
+    void createBody(b2Vec2 position, b2Vec2 size, b2BodyType type, std::string shape);
 
-    std::vector<Entity*> GetObjects(); // Get all objects in the scene
-
-    void AddObject(b2Vec2 position, b2Vec2 size);
     void RemoveObject(int index);
 
 
@@ -32,13 +30,11 @@ public:
     Camera2D* GetCamera();
 
 private:
-
+    std::string m_name;
     Camera2D* m_camera;
-    std::vector<Entity*> m_objects;
-    b2World* m_worldLocal;
+    b2World* m_world;
+    std::vector<Entity*> m_entities;
 
-    int m_windowWidth{};
-    int m_windowHeight{};
 
 
 };

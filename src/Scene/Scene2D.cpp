@@ -4,45 +4,77 @@
 
 #include "Scene2D.h"
 
-Scene2D::Scene2D(int32 width, int32 high, b2Vec2 gravity) {
-    m_camera = new Camera2D(width, high);
-    m_worldLocal = new b2World(gravity);
-    m_windowWidth = width;
-    m_windowHeight = high;
+Scene2D::Scene2D(std::string name, b2Vec2 gravity) {
+    m_name = name;
+    m_camera = new Camera2D(0, 0, 0);
+    m_world = new b2World(gravity);
 }
 
 Scene2D::~Scene2D() {
     delete m_camera;
-    delete m_worldLocal;
-    for (auto& object : m_objects) {
-        delete object;
+    delete m_world;
+
+}
+
+void Scene2D::createBody(b2Vec2 position, b2Vec2 size, b2BodyType type, std::string shape) {
+        //create a new box2d body
+         b2BodyDef bodyDef;
+         b2FixtureDef fixtureDef;
+         bodyDef.type = type;
+         bodyDef.position.Set(position.x, position.y);
+         b2Body* body = m_world->CreateBody(&bodyDef);
+
+    if(shape == "Box") {
+        //create a box shape
+        b2PolygonShape box;
+        box.SetAsBox(size.x, size.y);
+        //create a fixture
+        fixtureDef.shape = &box;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.3f;
+        body->CreateFixture(&fixtureDef);
     }
+    else if(shape == "Circle") {
+            //create a circle shape
+            b2CircleShape circle;
+            circle.m_radius = size.x;
+            fixtureDef.shape = &circle;
+            fixtureDef.density = 1.0f;
+            fixtureDef.friction = 0.3f;
+            body->CreateFixture(&fixtureDef);}
+
+    else if(shape == "Triangle") {
+        b2PolygonShape triangle;
+        triangle.SetAsBox(size.x, size.y);
+        fixtureDef.shape = &triangle;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.3f;
+        body->CreateFixture(&fixtureDef);
+    }
+    else{
+        std::cout << "Shape not found" << std::endl;
+    }
+
 }
 
-void Scene2D::AddObject(b2Vec2 position, b2Vec2 size) {
-    m_objects.push_back(new Entity(position, size));
-}
 
-void Scene2D::RemoveObject(int index) {
-    delete m_objects[index];
-    m_objects.erase(m_objects.begin() + index);
+
+std::string Scene2D::GetName() {
+    return m_name;
 }
 
 
-std::vector<Entity *> Scene2D::GetObjects() {
-    return m_objects;
-}
 
 /*---------------------------------------CAMERA-----------------------------------------*/
 
-Camera2D::Camera2D(int32 width, int32 height, b2Vec2 center, float zoom) {
-    m_width = width;
-    m_height = height;
-    m_center = center;
+Camera2D::Camera2D(int32 posX, int32 posY, float zoom) {
+    pos_x = posX;
+    pos_y = posY;
     m_zoom = zoom;
 }
 
 void Camera2D::ResetView() {
-    m_center = b2Vec2(0.0f, 0.0f);
+    pos_x = 0;
+    pos_y = 0;
     m_zoom = 1.0f;
 }
