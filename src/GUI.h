@@ -29,6 +29,7 @@ class GUI {
 private:
 
     const char* glsl_version;
+    //Scene2DManager* scene2DManager;
     ImGuiIO m_io;
 
 

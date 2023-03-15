@@ -4,28 +4,21 @@
 
 #ifndef EDULAB_SCENE2DMANAGER_H
 #define EDULAB_SCENE2DMANAGER_H
+#include "Scene2D.h"
+#include <utility>
 
 #include "core.h"
-#include "Scene2D.h"
+
 
 class Scene2DManager {
-// Scene should have os dependent code
-// this is why scene2dManger will help us to manage windows and scenes
-// it will be a singleton
-    public:
-        static Scene2DManager& GetInstance() {
-            static Scene2DManager instance;
-            return instance;
-        }
-        Scene2DManager();
-        ~Scene2DManager();
-        void CreateScene(std::string name);
-        void RemoveScene(std::string name);
-        void SetCurrentScene(std::string name);
-        void RenderCurrentScene();
-    private:
-        std::vector<Scene2D*> m_scenes;
-        Scene2D* m_currentScene;
+private:
+    std::vector<Scene2D*> scenes_;
+    Scene2D * current_scene_;
+public:
+    void create_scene(std::string name) ;
+
+    [[nodiscard]] std::vector<std::string> get_scene_names() const;
+
 
 
 

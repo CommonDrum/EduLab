@@ -1,5 +1,4 @@
  #include "core.h"
-#include "Scene/Scene2DManager.h"
 
 // Main code
 int main(int, char**)
@@ -79,43 +78,11 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     GUI gui;
 
-    Scene2D scene("test");
-    scene.createBody(b2Vec2(1,1), b2Vec2(1,1),b2_staticBody,"Box");
     //Scene2DManager manager;
-    //manager.AddScene(&scene);
-   // manager.SetCurrentScene(0);
-     //create a box2d world
-     b2Vec2 gravity(0.0f, 10.0f);
-     b2World* world = new b2World(gravity);
-     //create a new box2d body
-     b2BodyDef bodyDef;
-     b2FixtureDef fixtureDef;
-     bodyDef.type = b2_dynamicBody;
-     bodyDef.position.Set(700, 200);
-     b2Body* body = world->CreateBody(&bodyDef);
-     //create a box shape
-     b2PolygonShape box;
-     box.SetAsBox(100, 100);
-     //create a fixture
-     fixtureDef.shape = &box;
-     fixtureDef.density = 1.0f;
-     fixtureDef.friction = 0.3f;
-     body->CreateFixture(&fixtureDef);
-     //body->SetAngularVelocity(-0.5f);
-     //create a static white body
-        b2BodyDef whiteBodyDef;
-        b2FixtureDef whiteFixtureDef;
-        whiteBodyDef.type = b2_staticBody;
-        whiteBodyDef.position.Set(1000, 1100);
-        b2Body* whiteBody = world->CreateBody(&whiteBodyDef);
-        //create a box shape
-        b2PolygonShape whiteBox;
-        whiteBox.SetAsBox(1000, 500);
-        //create a fixture
-        whiteFixtureDef.shape = &whiteBox;
-        whiteFixtureDef.density = 1.0f;
-        whiteFixtureDef.friction = 0.3f;
-        whiteBody->CreateFixture(&whiteFixtureDef);
+    //manager.create_scene("test");
+
+    //manager.createEntity();
+
 
 //----------------------------------------------------------------------------------END SETUP
     // Main loop
@@ -145,9 +112,7 @@ int main(int, char**)
         gui.menuBar(&done);
         gui.tools();
         gui.fileExplorer();
-        gui.mainViewport(world);
-        //gui.placeholder(window);
-        //manager.RenderCurrentScene();
+
 //----------------------------------------------------------------------------------END OF PROGRAM SPECIFIC CODE
         // Rendering
         ImGui::Render();

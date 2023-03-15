@@ -1,42 +1,34 @@
 //
-// Created by Karol Hetman on 25/02/2023.
+// Created by Karol Hetman on 15/03/2023.
 //
 
 #ifndef EDULAB_SCENE2D_H
 #define EDULAB_SCENE2D_H
-#include "core.h"
-#include "Entity.h"
 
-// Camera is a struct that will be applied to entities to get their position on the screen (in pixels)
-struct Camera2D {
-    Camera2D(int32 posX, int32 posY, float zoom);
-    void ResetView();
-    float m_zoom;
-    int32 pos_x;
-    int32 pos_y;
+#include "core.h"
+
+
+struct Camera {
+    b2Vec2 position;
+    float zoom;
+    b2Vec2 screen;
 };
 
 class Scene2D {
 public:
-    explicit Scene2D(std::string name,b2Vec2 gravity = b2Vec2(0.0f, -10.0f));
-    ~Scene2D();
-    std::string GetName();
-    void createBody(b2Vec2 position, b2Vec2 size, b2BodyType type, std::string shape);
+    explicit Scene2D(std::string name);
 
-    void RemoveObject(int index);
-
-
-    void SetCamera(Camera2D* camera);
-    Camera2D* GetCamera();
+    // getter methods
+    [[nodiscard]] const b2World* get_world() const { return world_; }
+    [[nodiscard]] const std::vector<std::pair<b2Body*, ImVec4>>& get_bodies() const { return bodies_; }
+    [[nodiscard]] const Camera& get_camera() const { return camera_; }
+    [[nodiscard]] const std::string& get_name() const { return name_; }
 
 private:
-    std::string m_name;
-    Camera2D* m_camera;
-    b2World* m_world;
-    std::vector<Entity*> m_entities;
-
-
-
+    b2World* world_;
+    std::vector<std::pair<b2Body*, ImVec4>> bodies_;
+    Camera camera_ = {b2Vec2(0, 0), 1, b2Vec2(0, 0)};
+    std::string name_;
 };
 
 

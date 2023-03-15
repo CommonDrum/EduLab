@@ -28,7 +28,4 @@
 #endif
 
 
-#include "Scene/Scene2D.h"
-
-
 #endif //EDULAB_CORE_H

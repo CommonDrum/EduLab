@@ -8,6 +8,7 @@
 
 
 
+
 void GUI::menuBar(bool* done) {
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("EduLab")) {
@@ -30,6 +31,24 @@ void GUI::menuBar(bool* done) {
         }
         if (ImGui::MenuItem("Save As", "Ctrl+Shift+S")) {
             //SaveAs();
+        }
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Scenes")) {
+
+        std::vector<std::string> strings = { "apple", "banana", "cherry", "date" };
+        int selected_index = 0;
+
+        if (ImGui::BeginCombo("##combo", strings[selected_index].c_str())) {
+            for (int i = 0; i < strings.size(); ++i) {
+                const bool is_selected = (selected_index == i);
+                if (ImGui::Selectable(strings[i].c_str(), is_selected))
+                    selected_index = i;
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
         }
         ImGui::EndMenu();
     }
@@ -75,14 +94,14 @@ void GUI::mainViewport(b2World* world) {
                 b2Shape* shape = fixture->GetShape();
                 if (shape->GetType() == b2Shape::e_circle)
                 {
-                    b2CircleShape* circle_shape = static_cast<b2CircleShape*>(shape);
+                    auto* circle_shape = dynamic_cast<b2CircleShape*>(shape);
                     b2Vec2 center = body->GetWorldPoint(circle_shape->m_p);
                     float radius = circle_shape->m_radius;
                     draw_list->AddCircle(ImVec2(center.x, center.y), radius, IM_COL32(255, 0, 0, 255));
                 }
                 else if (shape->GetType() == b2Shape::e_polygon)
                 {
-                    b2PolygonShape* polygon_shape = static_cast<b2PolygonShape*>(shape);
+                    auto* polygon_shape = dynamic_cast<b2PolygonShape*>(shape);
                     int num_vertices = polygon_shape->m_count;
                     ImVec2 vertices[8];
                     for (int i = 0; i < num_vertices; ++i)
