@@ -19,8 +19,8 @@ public:
     explicit Scene2D(std::string name);
 
     // getter methods
-    [[nodiscard]] const b2World* get_world() const { return world_; }
-    [[nodiscard]] const std::vector<std::pair<b2Body*, ImVec4>>& get_bodies() const { return bodies_; }
+    b2World* get_world() { return world_; }
+    std::vector<std::pair<b2Body*, ImVec4>>& get_bodies() { return bodies_; }
     [[nodiscard]] const Camera& get_camera() const { return camera_; }
     [[nodiscard]] const std::string& get_name() const { return name_; }
 
