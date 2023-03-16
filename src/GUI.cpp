@@ -9,6 +9,7 @@
 
 
 
+
 void GUI::menuBar(bool* done) {
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("EduLab")) {
@@ -145,4 +146,5 @@ void GUI::placeholder(SDL_Window* sdl_window){
     //ImGui::DockBuilderDockWindow(reinterpret_cast<const char *>(SDL_GetWindowID(sdl_window)), sdl_window_id);
     ImGui::End();
 }
+
 

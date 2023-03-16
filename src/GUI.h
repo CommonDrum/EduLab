@@ -22,6 +22,8 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
+#include <Scene/Scene2DManager.h>
+
 
 
 
@@ -36,7 +38,6 @@ public:
     void tools();
     void fileExplorer();
     void menuBar(bool *done);
-    void mainViewport();
     void placeholder(SDL_Window *sdl_window);
 
     void mainViewport(b2World *world);

@@ -1,4 +1,5 @@
  #include "core.h"
+#include "GUI.h"
 
 // Main code
 int main(int, char**)
