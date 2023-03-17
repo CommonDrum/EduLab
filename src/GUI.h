@@ -32,15 +32,17 @@ private:
 
     const char* glsl_version;
     ImGuiIO m_io;
+    Scene2DManager* m_scene2DManager;
 
 
 public:
+    GUI(Scene2DManager* scene2DManager);
     void tools();
     void fileExplorer();
     void menuBar(bool *done);
     void placeholder(SDL_Window *sdl_window);
 
-    void mainViewport(b2World *world);
+    void mainViewport();
 };
 
 

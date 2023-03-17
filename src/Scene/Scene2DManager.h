@@ -16,6 +16,7 @@ public:
     void create_scene(std::string name) ;
     void * CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color);
     void draw_scene(ImDrawList *draw_list);
+    Scene2D* get_current_scene();
 
     [[nodiscard]] std::vector<std::string> get_scene_names() const;
 

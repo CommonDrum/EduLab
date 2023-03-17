@@ -68,15 +68,20 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
 void Scene2DManager::draw_scene(ImDrawList *draw_list) {
     for (auto &item : current_scene_->get_bodies()) {
         ImVec4 color = item.second;
+        ImColor im_color = ImColor(color.x, color.y, color.z, color.w);
         b2Body* body = item.first;
         b2Vec2 position = body->GetPosition();
+        //get size of the box
+
         float angle = body->GetAngle();
 
-        draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 1, position.y + 1), IM_COL32(255, 0, 0, 255));
-        draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 1, position.y + 1), IM_COL32(255, 0, 0, 255));
-        draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 1, position.y + 1), IM_COL32(255, 0, 0, 255));
-        draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 1, position.y + 1), IM_COL32(255, 0, 0, 255));
+        draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 100, position.y + 100), im_color);
+
     }
 
+}
+
+Scene2D *Scene2DManager::get_current_scene() {
+    return current_scene_;
 }
 

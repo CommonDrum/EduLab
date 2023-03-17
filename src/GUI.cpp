@@ -60,21 +60,46 @@ void GUI::menuBar(bool* done) {
 
 void GUI::fileExplorer() {
     ImGui::Begin("File Explorer");
-    //Create window with icons and names of files in directory
+
+// Make sure you have a valid b2World pointer called 'world'
+    ImGui::Text("Body Count: %zu", m_scene2DManager->get_current_scene()->get_bodies().size());
 
     ImGui::End();
         }
 
 void GUI::tools() {
     ImGui::Begin("Tools");
-    //Start the window on the right side of the screen
+
+    static float x = 0.0f;
+    static float y = 0.0f;
+    static float width = 1.0f;
+    static float height = 1.0f;
+    static int bodyTypeIdx = 1; // Default to dynamic body
+    static ImVec4 boxColor(1.0f, 0.0f, 0.0f, 1.0f); // Default color (red)
+
+
+    ImGui::InputFloat("X", &x);
+    ImGui::InputFloat("Y", &y);
+    ImGui::InputFloat("Width", &width);
+    ImGui::InputFloat("Height", &height);
+
+    const char* bodyTypes[] = { "Static", "Dynamic", "Kinematic" };
+    ImGui::Combo("Body Type", &bodyTypeIdx, bodyTypes, IM_ARRAYSIZE(bodyTypes));
+
+    ImGui::ColorEdit4("Color", (float*)&boxColor);
+
+    if (ImGui::Button("Create Box")) {
+        b2BodyType bodyType = static_cast<b2BodyType>(bodyTypeIdx);
+        m_scene2DManager->CreateBox( x, y, width, height, bodyType, boxColor);
+        // You may want to store the created body (newBox) in a data structure, like a vector, for future reference.
+    }
     ImGui::SetWindowSize(ImVec2(300, ImGui::GetIO().DisplaySize.y));
     ImGui::Text("Tools");
     ImGui::Separator();
     ImGui::End();
 }
 
-void GUI::mainViewport(b2World* world) {
+void GUI::mainViewport() {
     ImGui::Begin("ImGui SDL Triangle");
 
     ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -88,46 +113,8 @@ void GUI::mainViewport(b2World* world) {
     //create a box2d debug draw
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        for (b2Body* body = world->GetBodyList(); body != nullptr; body = body->GetNext())
-        {
-            for (b2Fixture* fixture = body->GetFixtureList(); fixture != nullptr; fixture = fixture->GetNext())
-            {
-                b2Shape* shape = fixture->GetShape();
-                if (shape->GetType() == b2Shape::e_circle)
-                {
-                    auto* circle_shape = dynamic_cast<b2CircleShape*>(shape);
-                    b2Vec2 center = body->GetWorldPoint(circle_shape->m_p);
-                    float radius = circle_shape->m_radius;
-                    draw_list->AddCircle(ImVec2(center.x, center.y), radius, IM_COL32(255, 0, 0, 255));
-                }
-                else if (shape->GetType() == b2Shape::e_polygon)
-                {
-                    auto* polygon_shape = dynamic_cast<b2PolygonShape*>(shape);
-                    int num_vertices = polygon_shape->m_count;
-                    ImVec2 vertices[8];
-                    for (int i = 0; i < num_vertices; ++i)
-                    {
-                        b2Vec2 vertex = body->GetWorldPoint(polygon_shape->m_vertices[i]);
-                        vertices[i] = ImVec2(vertex.x, vertex.y);
-                    }
-                    if (num_vertices == 3)
-                    {
-                        draw_list->AddTriangleFilled(vertices[0], vertices[1], vertices[2], IM_COL32(255, 0, 0, 255));
-                    }
-                    else if (num_vertices == 4)
-                    {
-                        draw_list->AddRectFilled(vertices[0], vertices[2], IM_COL32(255, 0, 0, 255));
-                    }
-                    else
-                    {
-                        draw_list->AddConvexPolyFilled(vertices, num_vertices, IM_COL32(255, 0, 0, 255));
-                    }
-                }
-            }
-        }
-        // update the world
-        world->Step(1.0f / 60.0f, 6, 2);
 
+      m_scene2DManager->draw_scene(draw_list);
 
 
     ImGui::End();
@@ -145,6 +132,11 @@ void GUI::placeholder(SDL_Window* sdl_window){
     ImGuiID sdl_window_id = ImGui::GetWindowViewport()->ID;
     //ImGui::DockBuilderDockWindow(reinterpret_cast<const char *>(SDL_GetWindowID(sdl_window)), sdl_window_id);
     ImGui::End();
+}
+
+GUI::GUI(Scene2DManager* scene2DManager) {
+    this->m_scene2DManager = scene2DManager;
+
 }
 
 

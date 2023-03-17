@@ -76,10 +76,12 @@ int main(int, char**)
 //----------------------------------------------------------------------------------SETUP
     //bool show_demo_window = true;
     //bool show_another_window = false;
+    Scene2DManager manager;
+    manager.create_scene("test");
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    GUI gui;
+    GUI gui(&manager);
 
-    //Scene2DManager manager;
+
     //manager.create_scene("test");
 
     //manager.createEntity();
@@ -113,6 +115,7 @@ int main(int, char**)
         gui.menuBar(&done);
         gui.tools();
         gui.fileExplorer();
+        gui.mainViewport();
 
 //----------------------------------------------------------------------------------END OF PROGRAM SPECIFIC CODE
         // Rendering
