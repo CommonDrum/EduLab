@@ -51,6 +51,19 @@ void GUI::menuBar(bool* done) {
             }
             ImGui::EndCombo();
         }
+        // create a play button when clicked it will start the simulation and the button will change to stop
+        //will call start function continuously until stop is clicked
+        if (ImGui::Button("Play")) {
+            m_scene2DManager->running = true;
+
+
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Stop")) {
+            m_scene2DManager->running = false;
+        }
+
+
         ImGui::EndMenu();
     }
 
@@ -69,6 +82,7 @@ void GUI::fileExplorer() {
 
 void GUI::tools() {
     ImGui::Begin("Tools");
+    ImGui::Begin("Box");
 
     static float x = 0.0f;
     static float y = 0.0f;
@@ -78,10 +92,12 @@ void GUI::tools() {
     static ImVec4 boxColor(1.0f, 0.0f, 0.0f, 1.0f); // Default color (red)
 
 
-    ImGui::InputFloat("X", &x);
-    ImGui::InputFloat("Y", &y);
+    ImGui::SliderFloat("X", &x, -1000.0f, 1000.0f);
+    ImGui::SliderFloat("Y", &y, -1000.0f, 1000.0f);
+
     ImGui::InputFloat("Width", &width);
     ImGui::InputFloat("Height", &height);
+
 
     const char* bodyTypes[] = { "Static", "Dynamic", "Kinematic" };
     ImGui::Combo("Body Type", &bodyTypeIdx, bodyTypes, IM_ARRAYSIZE(bodyTypes));
@@ -89,13 +105,32 @@ void GUI::tools() {
     ImGui::ColorEdit4("Color", (float*)&boxColor);
 
     if (ImGui::Button("Create Box")) {
-        b2BodyType bodyType = static_cast<b2BodyType>(bodyTypeIdx);
+        auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
         m_scene2DManager->CreateBox( x, y, width, height, bodyType, boxColor);
         // You may want to store the created body (newBox) in a data structure, like a vector, for future reference.
     }
     ImGui::SetWindowSize(ImVec2(300, ImGui::GetIO().DisplaySize.y));
-    ImGui::Text("Tools");
+    ImGui::End();
     ImGui::Separator();
+    ImGui::Begin("Circle");
+    float radius = 100.0f;
+    ImGui::InputFloat("Radius", &radius);
+
+    static ImVec4 CircleColor(1.0f, 0.0f, 0.0f, 1.0f); // Default color (red)
+
+    ImGui::SliderFloat("X", &x, -1000.0f, 1000.0f);
+    ImGui::SliderFloat("Y", &y, -1000.0f, 1000.0f);
+
+    ImGui::ColorEdit4("Color", (float*)&CircleColor);
+    if (ImGui::Button("Create Circle")) {
+        auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
+        m_scene2DManager->CreateCircle( x, y, radius, bodyType, CircleColor);
+        // You may want to store the created body (newBox) in a data structure, like a vector, for future reference.
+    }
+
+
+
+    ImGui::End();
     ImGui::End();
 }
 
@@ -104,7 +139,7 @@ void GUI::mainViewport() {
 
     ImVec2 pos = ImGui::GetCursorScreenPos();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImVec2 screen_pos = ImGui::GetCursorScreenPos();
+    ImVec2 curs_screen_pos = ImGui::GetCursorScreenPos();
     float size = 100.0f;
     float x = pos.x + ImGui::GetWindowWidth() / 2.0f - size / 2.0f;
     float y = pos.y + ImGui::GetWindowHeight() / 2.0f - size / 2.0f;
@@ -112,9 +147,12 @@ void GUI::mainViewport() {
 
     //create a box2d debug draw
 
-        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    b2Vec2 center = b2Vec2(windowPos.x + windowSize.x / 2.0f, windowPos.y + windowSize.y / 2.0f);
 
-      m_scene2DManager->draw_scene(draw_list);
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    m_scene2DManager->draw_scene(draw_list, center);
 
 
     ImGui::End();

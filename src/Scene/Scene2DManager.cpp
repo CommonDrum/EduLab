@@ -65,23 +65,79 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
     return body;
 }
 
-void Scene2DManager::draw_scene(ImDrawList *draw_list) {
+void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
+    Camera camera = current_scene_->get_camera();
     for (auto &item : current_scene_->get_bodies()) {
+
         ImVec4 color = item.second;
         ImColor im_color = ImColor(color.x, color.y, color.z, color.w);
+
         b2Body* body = item.first;
-        b2Vec2 position = body->GetPosition();
-        //get size of the box
+        b2Vec2 position = body->GetPosition() + camera.position + screen;
 
         float angle = body->GetAngle();
+        //get size of the box
+        b2Shape* shape = body->GetFixtureList()->GetShape();
+        b2Shape::Type shapeType = shape->GetType();
+
+        float width = 0.0f;
+        float height = 0.0f;
+        float radius = 0.0f;
+        switch (shapeType) {
+            case b2Shape::e_circle:
+            {
+                auto* circleShape = dynamic_cast<b2CircleShape*>(shape);
+                radius = circleShape->m_radius * camera.zoom;
+                // add to draw list with camera applied and angle
+                draw_list->AddCircleFilled(ImVec2(position.x, position.y), radius, im_color);
+
+                break;
+            }
+            case b2Shape::e_polygon:
+            {
+                auto* polygonShape = dynamic_cast<b2PolygonShape*>(shape);
+                b2AABB aabb{};
+                b2Transform identityTransform{};
+                identityTransform.SetIdentity();
+                polygonShape->ComputeAABB(&aabb, identityTransform, 0);
+
+                width = (aabb.upperBound.x - aabb.lowerBound.x) * camera.zoom;
+                height = (aabb.upperBound.y - aabb.lowerBound.y) * camera.zoom;
+                draw_list->AddRectFilled(ImVec2(position.x, -position.y), ImVec2(width, height), im_color);
+                break;
+            }
+            default:
+                break;
+
+
 
         draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 100, position.y + 100), im_color);
 
-    }
+        }
 
+    }
 }
 
 Scene2D *Scene2DManager::get_current_scene() {
     return current_scene_;
+}
+
+void Scene2DManager::start() {
+
+
+    current_scene_->get_world()->Step(1.0f / 60.0f, 8, 3);
+
+
+
+}
+
+void Scene2DManager::stop() {
+    m_running = false;
+    //delete the current scene
+    delete current_scene_;
+    //load the original scene
+    current_scene_ = original_scene_;
+     original_scene_ = nullptr;
+
 }
 

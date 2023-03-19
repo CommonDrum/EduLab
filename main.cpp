@@ -116,6 +116,12 @@ int main(int, char**)
         gui.tools();
         gui.fileExplorer();
         gui.mainViewport();
+        if (manager.running)
+        {
+            // get currnet world and update it
+            manager.get_current_scene()->get_world()->Step(1.0f / 60.0f, 6, 2);
+
+        }
 
 //----------------------------------------------------------------------------------END OF PROGRAM SPECIFIC CODE
         // Rendering
