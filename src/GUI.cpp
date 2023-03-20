@@ -36,36 +36,24 @@ void GUI::menuBar(bool* done) {
         ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Scenes")) {
-
-        std::vector<std::string> strings = { "apple", "banana", "cherry", "date" };
-        int selected_index = 0;
-
-        if (ImGui::BeginCombo("##combo", strings[selected_index].c_str())) {
-            for (int i = 0; i < strings.size(); ++i) {
-                const bool is_selected = (selected_index == i);
-                if (ImGui::Selectable(strings[i].c_str(), is_selected))
-                    selected_index = i;
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-        // create a play button when clicked it will start the simulation and the button will change to stop
-        //will call start function continuously until stop is clicked
+    if(m_scene2DManager->running == false) {
         if (ImGui::Button("Play")) {
             m_scene2DManager->running = true;
-
-
         }
-        ImGui::SameLine();
+    }
+    else {
         if (ImGui::Button("Stop")) {
             m_scene2DManager->running = false;
         }
-
-
-        ImGui::EndMenu();
+       // ImGui::EndMenu();
     }
+
+
+
+
+
+
+
 
     ImGui::EndMainMenuBar();
 
@@ -82,56 +70,59 @@ void GUI::fileExplorer() {
 
 void GUI::tools() {
     ImGui::Begin("Tools");
-    ImGui::Begin("Box");
+    ImGui::Separator();
+    ImGui::Begin("Body Creator");
+
+    static float rotation = 0.0f;
 
     static float x = 0.0f;
     static float y = 0.0f;
+
     static float width = 1.0f;
     static float height = 1.0f;
-    static int bodyTypeIdx = 1; // Default to dynamic body
-    static ImVec4 boxColor(1.0f, 0.0f, 0.0f, 1.0f); // Default color (red)
 
-
-    ImGui::SliderFloat("X", &x, -1000.0f, 1000.0f);
-    ImGui::SliderFloat("Y", &y, -1000.0f, 1000.0f);
-
-    ImGui::InputFloat("Width", &width);
-    ImGui::InputFloat("Height", &height);
-
+    static float radius = 1.0f;
 
     const char* bodyTypes[] = { "Static", "Dynamic", "Kinematic" };
+    static int bodyTypeIdx = 1; // Default to dynamic body
+
+    const char* bodyShapes[] = { "Circle", "Rectangle" };
+    static int bodyShapeIdx = 1; // Default to rectangle
+
+    static ImVec4 boxColor(1.0f, 1.0f, 1.0f, 1.0f); // Default color (white)
+
+
+
+
+
+    ImGui::Combo("Body Shape", &bodyShapeIdx, bodyShapes, IM_ARRAYSIZE(bodyShapes));
     ImGui::Combo("Body Type", &bodyTypeIdx, bodyTypes, IM_ARRAYSIZE(bodyTypes));
-
-    ImGui::ColorEdit4("Color", (float*)&boxColor);
-
-    if (ImGui::Button("Create Box")) {
-        auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
-        m_scene2DManager->CreateBox( x, y, width, height, bodyType, boxColor);
-        // You may want to store the created body (newBox) in a data structure, like a vector, for future reference.
-    }
-    ImGui::SetWindowSize(ImVec2(300, ImGui::GetIO().DisplaySize.y));
-    ImGui::End();
-    ImGui::Separator();
-    ImGui::Begin("Circle");
-    float radius = 100.0f;
-    ImGui::InputFloat("Radius", &radius);
-
-    static ImVec4 CircleColor(1.0f, 0.0f, 0.0f, 1.0f); // Default color (red)
 
     ImGui::SliderFloat("X", &x, -1000.0f, 1000.0f);
     ImGui::SliderFloat("Y", &y, -1000.0f, 1000.0f);
+    ImGui::SliderFloat("Rotation", &rotation, -180.0f, 180.0f);
 
-    ImGui::ColorEdit4("Color", (float*)&CircleColor);
-    if (ImGui::Button("Create Circle")) {
-        auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
-        m_scene2DManager->CreateCircle( x, y, radius, bodyType, CircleColor);
-        // You may want to store the created body (newBox) in a data structure, like a vector, for future reference.
+    if (bodyShapeIdx == 0) { // Circle creation
+        ImGui::InputFloat("Radius", &radius);
+        ImGui::ColorEdit4("Color", (float *) &boxColor);
+        if (ImGui::Button("Create Circle")) {
+            auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
+            m_scene2DManager->CreateCircle(x, y, radius, bodyType, boxColor, rotation);
+        }
     }
-
-
+    else if(bodyShapeIdx == 1) { // Rectangle creation
+        ImGui::InputFloat("Width", &width);
+        ImGui::InputFloat("Height", &height);
+        ImGui::ColorEdit4("Color", (float*)&boxColor);
+        if (ImGui::Button("Create Rectangle")) {
+            auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
+            m_scene2DManager->CreateBox(x, y, width, height, bodyType, boxColor, rotation);
+            }
+        }
 
     ImGui::End();
     ImGui::End();
+    ///ImGui::SetWindowSize(ImVec2(300, ImGui::GetIO().DisplaySize.y));
 }
 
 void GUI::mainViewport() {
@@ -140,10 +131,7 @@ void GUI::mainViewport() {
     ImVec2 pos = ImGui::GetCursorScreenPos();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     ImVec2 curs_screen_pos = ImGui::GetCursorScreenPos();
-    float size = 100.0f;
-    float x = pos.x + ImGui::GetWindowWidth() / 2.0f - size / 2.0f;
-    float y = pos.y + ImGui::GetWindowHeight() / 2.0f - size / 2.0f;
-    std::cout << x << " " << y << std::endl;
+
 
     //create a box2d debug draw
 
@@ -158,19 +146,7 @@ void GUI::mainViewport() {
     ImGui::End();
 }
 
-void GUI::placeholder(SDL_Window* sdl_window){
-    ImGui::Begin("Imgui Window");
 
-// Create a placeholder for the SDL window
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-    ImVec2 size = ImVec2(320, 240);
-    ImGui::GetWindowDrawList()->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32_WHITE);
-
-// Dock the SDL window into the placeholder
-    ImGuiID sdl_window_id = ImGui::GetWindowViewport()->ID;
-    //ImGui::DockBuilderDockWindow(reinterpret_cast<const char *>(SDL_GetWindowID(sdl_window)), sdl_window_id);
-    ImGui::End();
-}
 
 GUI::GUI(Scene2DManager* scene2DManager) {
     this->m_scene2DManager = scene2DManager;

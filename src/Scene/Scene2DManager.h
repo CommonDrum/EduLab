@@ -5,6 +5,7 @@
 #ifndef EDULAB_SCENE2DMANAGER_H
 #define EDULAB_SCENE2DMANAGER_H
 #include "Scene2D.h"
+#include <cmath>
 
 
 
@@ -13,21 +14,26 @@ private:
     std::vector<Scene2D*> scenes_;
     Scene2D * current_scene_;
     Scene2D * original_scene_;
-    bool m_running = false;
+    bool m_running = true;
 public:
     void create_scene(std::string name) ;
-    void * CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color);
-    b2Body * CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color);
+    void * CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle = 0.0f);
+    b2Body *CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle);
 
+    void DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color, ImDrawList* drawList);
+    void DrawCircle(const ImVec2 &position, float radius, float rotation, ImU32 color);
 
     Scene2D* get_current_scene();
-    void start ();
-    void stop ();
+    void update();
     bool running = false;
     [[nodiscard]] std::vector<std::string> get_scene_names() const;
 
 
     void draw_scene(ImDrawList *draw_list, b2Vec2 screen);
+
+    static void DrawFilledRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color);
+
+
 };
 
 

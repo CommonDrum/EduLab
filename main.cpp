@@ -65,11 +65,42 @@ int main(int, char**)
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        style.WindowRounding = 10.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 2.0f;
     }
 
-    // Setup Platform/Renderer backends
+
+     style.WindowPadding = ImVec2(10, 10);
+     style.FramePadding = ImVec2(5, 5);
+     style.ItemSpacing = ImVec2(5, 5);
+     style.ItemInnerSpacing = ImVec2(2, 2);
+     style.Alpha = 1.0f;
+     style.FrameRounding = 5.0f;
+     style.WindowRounding = 5.0f;
+     style.IndentSpacing = 20.0f;
+     style.ScrollbarSize = 15.0f;
+     style.ScrollbarRounding = 9.0f;
+     style.GrabMinSize = 5.0f;
+     style.GrabRounding = 3.0f;
+     // Customize the style
+     ImVec4 lightGreen = ImVec4(0.7f, 0.9f, 0.7f, 1.0f);
+     ImVec4 darkGreen = ImVec4(0.4f, 0.6f, 0.4f, 1.0f);
+     ImVec4 backgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+
+
+     style.Colors[ImGuiCol_Text] = darkGreen;
+     style.Colors[ImGuiCol_WindowBg] = backgroundColor;
+     style.Colors[ImGuiCol_TitleBg] = lightGreen;
+     style.Colors[ImGuiCol_TitleBgActive] = lightGreen;
+     style.Colors[ImGuiCol_Button] = lightGreen;
+     style.Colors[ImGuiCol_ButtonHovered] = ImVec4(lightGreen.x + 0.1f, lightGreen.y + 0.1f, lightGreen.z + 0.1f, lightGreen.w);
+     style.Colors[ImGuiCol_ButtonActive] = ImVec4(lightGreen.x - 0.1f, lightGreen.y - 0.1f, lightGreen.z - 0.1f, lightGreen.w);
+
+
+
+
+
+     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
@@ -116,12 +147,7 @@ int main(int, char**)
         gui.tools();
         gui.fileExplorer();
         gui.mainViewport();
-        if (manager.running)
-        {
-            // get currnet world and update it
-            manager.get_current_scene()->get_world()->Step(1.0f / 60.0f, 6, 2);
-
-        }
+        manager.update();
 
 //----------------------------------------------------------------------------------END OF PROGRAM SPECIFIC CODE
         // Rendering
