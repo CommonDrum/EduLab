@@ -69,6 +69,10 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
 
 void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color,
                                    ImDrawList* drawList) {
+    //apply camera on size and position
+    const Camera& camera = current_scene_->get_camera();
+
+
     ImVec2 halfSize = ImVec2(size.x * 0.5f, size.y * 0.5f);
     ImVec2 corners[4] = {
             ImVec2(-halfSize.x, -halfSize.y),
@@ -88,6 +92,8 @@ void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, f
         corner.x = x + position.x;
         corner.y = y + position.y;
     }
+
+    //Apply camera
 
 
     // Draw rectangle
@@ -145,6 +151,9 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
 
         b2Body* body = item.first;
         b2Vec2 position = body->GetPosition() + camera.position + screen;
+        // multiply by zoom
+
+
 
         float angle = body->GetAngle();
         //get size of the box
@@ -178,10 +187,6 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
             }
             default:
                 break;
-
-
-
-        draw_list->AddRectFilled(ImVec2(position.x - 1, position.y - 1), ImVec2(position.x + 100, position.y + 100), im_color);
 
         }
 

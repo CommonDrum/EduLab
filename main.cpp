@@ -88,14 +88,14 @@ int main(int, char**)
      ImVec4 backgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 
 
-     style.Colors[ImGuiCol_Text] = darkGreen;
+     /*style.Colors[ImGuiCol_Text] = darkGreen;
      style.Colors[ImGuiCol_WindowBg] = backgroundColor;
      style.Colors[ImGuiCol_TitleBg] = lightGreen;
      style.Colors[ImGuiCol_TitleBgActive] = lightGreen;
      style.Colors[ImGuiCol_Button] = lightGreen;
-     style.Colors[ImGuiCol_ButtonHovered] = ImVec4(lightGreen.x + 0.1f, lightGreen.y + 0.1f, lightGreen.z + 0.1f, lightGreen.w);
-     style.Colors[ImGuiCol_ButtonActive] = ImVec4(lightGreen.x - 0.1f, lightGreen.y - 0.1f, lightGreen.z - 0.1f, lightGreen.w);
-
+     //style.Colors[ImGuiCol_ButtonHovered] = ImVec4(lightGreen.x + 0.1f, lightGreen.y + 0.1f, lightGreen.z + 0.1f, lightGreen.w);
+     //style.Colors[ImGuiCol_ButtonActive] = ImVec4(lightGreen.x - 0.1f, lightGreen.y - 0.1f, lightGreen.z - 0.1f, lightGreen.w);
+*/
 
 
 
