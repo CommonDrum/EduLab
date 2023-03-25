@@ -17,6 +17,8 @@ private:
     bool m_running = true;
 public:
     void create_scene(std::string name) ;
+
+    void * CreateBody(b2BodyType bodyType, b2Vec2 position, b2Vec2 size, float angle = 0.0f, ImColor color = ImColor(255, 255, 255, 255));
     void * CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle = 0.0f);
     b2Body * CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle);
 
