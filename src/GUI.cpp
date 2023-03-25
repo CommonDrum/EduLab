@@ -126,11 +126,13 @@ void GUI::tools() {
 }
 
 void GUI::mainViewport() {
-    ImGui::Begin("ImGui SDL Triangle");
+    ImGui::Begin("ImGui SDL Triangle",NULL,ImGuiWindowFlags_NoScrollWithMouse);
 
     ImVec2 pos = ImGui::GetCursorScreenPos();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     ImVec2 curs_screen_pos = ImGui::GetCursorScreenPos();
+    //add controls of camera with arrow keys
+    //add zoom with mouse wheel
 
 
     //create a box2d debug draw
@@ -139,8 +141,40 @@ void GUI::mainViewport() {
     ImVec2 windowPos = ImGui::GetWindowPos();
     b2Vec2 center = b2Vec2(windowPos.x + windowSize.x / 2.0f, windowPos.y + windowSize.y / 2.0f);
 
+    Camera * cam = m_scene2DManager->get_current_scene()->get_camera();
+
+    // Update the camera based on ImGui IO within the ImGui window
+    if (ImGui::IsWindowFocused()) {
+        float cameraSpeed = 10.0f;
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))){
+            cam->y += cameraSpeed;
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))){
+            cam->y -= cameraSpeed;
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))){
+            cam->x -= cameraSpeed;
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))){
+            cam->x += cameraSpeed;
+        }
+
+        float zoomSpeed = 0.5f;
+
+        cam->zoom += ImGui::GetIO().MouseWheel * zoomSpeed;
+        if (cam->zoom < 0.1f) {
+            cam->zoom = 0.1f;
+        }
+    }
+
+
+
+
+
+
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     m_scene2DManager->draw_scene(draw_list, center);
+
 
 
     ImGui::End();
@@ -150,6 +184,8 @@ void GUI::mainViewport() {
 
 GUI::GUI(Scene2DManager* scene2DManager) {
     this->m_scene2DManager = scene2DManager;
+    m_io.WantCaptureKeyboard = true;
+    m_io.WantCaptureMouse = true;
 
 }
 

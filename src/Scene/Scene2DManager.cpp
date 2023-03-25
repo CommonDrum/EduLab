@@ -70,7 +70,7 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
 void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color,
                                    ImDrawList* drawList) {
     //apply camera on size and position
-    const Camera& camera = current_scene_->get_camera();
+    const Camera camera = *current_scene_->get_camera();
 
 
     ImVec2 halfSize = ImVec2(size.x * 0.5f, size.y * 0.5f);
@@ -143,14 +143,20 @@ void Scene2DManager::DrawFilledRectangle(const ImVec2& position, const ImVec2& s
 
 
 void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
-    Camera camera = current_scene_->get_camera();
+    Camera camera = *current_scene_->get_camera();
     for (auto &item : current_scene_->get_bodies()) {
 
+        float screen_ratio = screen.x / screen.y;
         ImVec4 color = item.second;
         ImColor im_color = ImColor(color.x, color.y, color.z, color.w);
 
         b2Body* body = item.first;
-        b2Vec2 position = body->GetPosition() + camera.position + screen;
+        b2Vec2 position = body->GetPosition();
+        position.x *= camera.zoom; // multiply by zoom
+        position.y *= camera.zoom;
+        position.x -= camera.x; // add camera position
+        position.y += camera.y;
+        position +=  screen; // add camera position
         // multiply by zoom
 
 
@@ -182,12 +188,14 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
 
                 width = (aabb.upperBound.x - aabb.lowerBound.x) * camera.zoom;
                 height = (aabb.upperBound.y - aabb.lowerBound.y) * camera.zoom;
+                // transform to screen coordinates
+
                 this->DrawRectangle(ImVec2(position.x, position.y), ImVec2(width, height), angle, im_color, draw_list);
                 break;
             }
             default:
                 break;
-
+            
         }
 
     }
@@ -202,7 +210,10 @@ void Scene2DManager::update() {
         this->current_scene_->get_world()->Step(1.0f / 60.0f, 6, 2);
     }
 
+
 }
+
+
 
 
 

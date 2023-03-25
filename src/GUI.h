@@ -32,7 +32,9 @@ private:
 
     const char* glsl_version;
     ImGuiIO m_io;
+
     Scene2DManager* m_scene2DManager;
+    float delta_time = 1.0f / ImGui::GetIO().Framerate;
 
 
 public:
