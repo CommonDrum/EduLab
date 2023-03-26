@@ -38,11 +38,11 @@ private:
 
 
 public:
-    GUI(Scene2DManager* scene2DManager);
+    explicit GUI(Scene2DManager* scene2DManager);
     void tools();
     void fileExplorer();
     void menuBar(bool *done);
-    void placeholder(SDL_Window *sdl_window);
+    ImVec2 windowCenter();
 
     void mainViewport();
 };

@@ -63,14 +63,13 @@ void GUI::fileExplorer() {
     ImGui::Begin("File Explorer");
 
 // Make sure you have a valid b2World pointer called 'world'
-    ImGui::Text("Body Count: %zu", m_scene2DManager->get_current_scene()->get_bodies().size());
+    ImGui::Text("Body Count: %zu", m_scene2DManager->get_current_scene()->get_objects().size());
 
     ImGui::End();
         }
 
 void GUI::tools() {
-    ImGui::Begin("Tools");
-    ImGui::Separator();
+
     ImGui::Begin("Body Creator");
 
     static float rotation = 0.0f;
@@ -90,8 +89,6 @@ void GUI::tools() {
     static int bodyShapeIdx = 1; // Default to rectangle
 
     static ImVec4 boxColor(1.0f, 1.0f, 1.0f, 1.0f); // Default color (white)
-
-
 
 
 
@@ -121,27 +118,21 @@ void GUI::tools() {
         }
 
     ImGui::End();
-    ImGui::End();
-    ///ImGui::SetWindowSize(ImVec2(300, ImGui::GetIO().DisplaySize.y));
+
 }
 
 void GUI::mainViewport() {
     ImGui::Begin("ImGui SDL Triangle",NULL,ImGuiWindowFlags_NoScrollWithMouse);
 
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImVec2 curs_screen_pos = ImGui::GetCursorScreenPos();
-    //add controls of camera with arrow keys
-    //add zoom with mouse wheel
-
-
-    //create a box2d debug draw
-
-    ImVec2 windowSize = ImGui::GetWindowSize();
-    ImVec2 windowPos = ImGui::GetWindowPos();
-    b2Vec2 center = b2Vec2(windowPos.x + windowSize.x / 2.0f, windowPos.y + windowSize.y / 2.0f);
 
     Camera * cam = m_scene2DManager->get_current_scene()->get_camera();
+
+    ImVec2 center = windowCenter();
+
+    cam->sUpdate(center.x, center.y); // Update the camera based on ImGui IO within the ImGui window
+
+
+
 
     // Update the camera based on ImGui IO within the ImGui window
     if (ImGui::IsWindowFocused()) {
@@ -165,16 +156,16 @@ void GUI::mainViewport() {
         if (cam->zoom < 0.1f) {
             cam->zoom = 0.1f;
         }
+
+
+        if (ImGui::IsMouseClicked(0)) {
+            b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+            std::cout << "Mouse Pos: " << mousePos.x << " " << mousePos.y << std::endl;
+        }
     }
 
-
-
-
-
-
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    m_scene2DManager->draw_scene(draw_list, center);
-
+    m_scene2DManager->draw_scene(draw_list);
 
 
     ImGui::End();
@@ -187,6 +178,13 @@ GUI::GUI(Scene2DManager* scene2DManager) {
     m_io.WantCaptureKeyboard = true;
     m_io.WantCaptureMouse = true;
 
+}
+
+ImVec2 GUI::windowCenter() {
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    ImVec2 center = ImVec2(windowPos.x + windowSize.x / 2.0f, windowPos.y + windowSize.y / 2.0f);
+    return center;
 }
 
 

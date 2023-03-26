@@ -25,11 +25,10 @@ public:
     void DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color, ImDrawList* drawList);
     void DrawCircle(const ImVec2 &position, float radius, float rotation, ImU32 color);
 
+    Object2D * object_at_point(b2Vec2 point);
+
     ImVec2 world_to_screen(const b2Vec2& worldCoords);
     b2Vec2 screen_to_world(const ImVec2& screenCoords);
-
-
-    ImVec2 box2dToImGuiScreen(const b2Vec2& box2dCoords);
 
     Scene2D* get_current_scene();
     void update();
@@ -37,7 +36,7 @@ public:
     [[nodiscard]] std::vector<std::string> get_scene_names() const;
 
 
-    void draw_scene(ImDrawList *draw_list, b2Vec2 screen);
+    void draw_scene(ImDrawList *draw_list);
 
     static void DrawFilledRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color);
 

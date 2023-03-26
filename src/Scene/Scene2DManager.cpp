@@ -39,7 +39,7 @@ void * Scene2DManager::CreateBox(float x, float y, float width, float height, b2
     b2Body* body = current_scene_->get_world()->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
 
-    current_scene_->get_bodies().emplace_back(body, color);
+    current_scene_->add_object(body, color);
 
     // return the pair
     return body;
@@ -62,7 +62,7 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
     b2Body* body = current_scene_->get_world()->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
 
-    current_scene_->get_bodies().emplace_back(body, color);
+    current_scene_->add_object(body, color);
 
     return body;
 }
@@ -142,21 +142,22 @@ void Scene2DManager::DrawFilledRectangle(const ImVec2& position, const ImVec2& s
 }
 
 
-void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
+void Scene2DManager::draw_scene(ImDrawList *draw_list) {
     Camera camera = *current_scene_->get_camera();
-    for (auto &item : current_scene_->get_bodies()) {
+    for (auto &item : current_scene_->get_objects()) {
 
-        float screen_ratio = screen.x / screen.y;
-        ImVec4 color = item.second;
-        ImColor im_color = ImColor(color.x, color.y, color.z, color.w);
 
-        b2Body* body = item.first;
-        b2Vec2 position = body->GetPosition();
-        position.x *= camera.zoom; // multiply by zoom
-        position.y *= camera.zoom;
-        position.x -= camera.x; // add camera position
-        position.y += camera.y;
-        position +=  screen; // add camera position
+        ImColor im_color = item->get_color();
+
+
+        b2Body* body = item->get_body();
+        ImVec2 screenPosition = world_to_screen(body->GetPosition());
+
+       //std::cout << "Screen position: " << screenPosition.x << ", " << screenPosition.y << std::endl;
+
+
+
+        // add camera position
         // multiply by zoom
 
 
@@ -175,7 +176,7 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
                 auto* circleShape = dynamic_cast<b2CircleShape*>(shape);
                 radius = circleShape->m_radius * camera.zoom;
                 // add to draw list with camera applied and angle
-                this->DrawCircle(ImVec2(position.x, position.y), radius, angle, im_color);
+                this->DrawCircle(screenPosition, radius, angle, im_color);
                 break;
             }
             case b2Shape::e_polygon:
@@ -190,7 +191,7 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list, b2Vec2 screen) {
                 height = (aabb.upperBound.y - aabb.lowerBound.y) * camera.zoom;
                 // transform to screen coordinates
 
-                this->DrawRectangle(ImVec2(position.x, position.y), ImVec2(width, height), angle, im_color, draw_list);
+                this->DrawRectangle(screenPosition, ImVec2(width, height), angle, im_color, draw_list);
                 break;
             }
             default:
@@ -205,12 +206,57 @@ Scene2D *Scene2DManager::get_current_scene() {
     return current_scene_;
 }
 
-void Scene2DManager::update() {
+void Scene2DManager::update() { // called by main.cpp
     if (this->running){
         this->current_scene_->get_world()->Step(1.0f / 60.0f, 6, 2);
     }
 
 
+}
+
+Object2D *Scene2DManager::object_at_point(b2Vec2 point) {
+    for (auto &item : current_scene_->get_objects()) {
+        b2Body* body = item->get_body();
+        b2Fixture *fixture = body->GetFixtureList();
+        if (fixture->TestPoint(point)){
+            return item;
+        }
+    }
+    return nullptr;
+}
+
+b2Vec2 Scene2DManager::screen_to_world(const ImVec2 &screenCoords) {
+    Camera camera = *current_scene_->get_camera();
+    b2Vec2 worldCoords = b2Vec2(screenCoords.x, screenCoords.y);
+
+    worldCoords.x -= camera.sX;
+    worldCoords.y -= camera.sY;
+
+    worldCoords.x += camera.x;
+    worldCoords.y -= camera.y;
+
+    worldCoords.x /= camera.zoom;
+    worldCoords.y /= camera.zoom;
+
+
+    return worldCoords;
+}
+
+ImVec2 Scene2DManager::world_to_screen(const b2Vec2 &worldCoords) {
+    Camera camera = *current_scene_->get_camera();
+    ImVec2 screenCoords = ImVec2(worldCoords.x, worldCoords.y);
+
+    screenCoords.x *= camera.zoom; // multiply by zoom
+    screenCoords.y *= camera.zoom;
+
+    screenCoords.x -= camera.x; // add camera position
+    screenCoords.y += camera.y;
+
+    screenCoords.x +=  camera.sX;
+    screenCoords.y +=  camera.sY;
+
+
+    return screenCoords;
 }
 
 
