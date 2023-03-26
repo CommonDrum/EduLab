@@ -17,6 +17,7 @@ public:
     // getter methods
     b2Body* get_body() { return body; }
     ImVec4 get_color() { return color; }
+    ImVec4 set_color(ImVec4 newColor);
 };
 
 

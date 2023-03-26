@@ -122,6 +122,8 @@ void GUI::tools() {
 }
 
 void GUI::mainViewport() {
+
+
     ImGui::Begin("ImGui SDL Triangle",NULL,ImGuiWindowFlags_NoScrollWithMouse);
 
 
@@ -135,7 +137,7 @@ void GUI::mainViewport() {
 
 
     // Update the camera based on ImGui IO within the ImGui window
-    if (ImGui::IsWindowFocused()) {
+    if (ImGui::IsWindowHovered()) {
         float cameraSpeed = 10.0f;
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))){
             cam->y += cameraSpeed;
@@ -157,10 +159,21 @@ void GUI::mainViewport() {
             cam->zoom = 0.1f;
         }
 
-
         if (ImGui::IsMouseClicked(0)) {
             b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
-            std::cout << "Mouse Pos: " << mousePos.x << " " << mousePos.y << std::endl;
+            m_scene2DManager->highlight_object_click(mousePos);
+            clicked = true;
+        }
+        if (clicked && ImGui::IsMouseDragging(0)) // Check if dragging
+            {
+                b2Vec2 mmousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+                m_scene2DManager->move_highlighted_object(mmousePos);
+                std::cout << "Dragging" << std::endl;
+            }
+
+        else if (ImGui::IsMouseReleased(0)) {
+            clicked = false;
+            std::cout << "Released" << std::endl;
         }
     }
 

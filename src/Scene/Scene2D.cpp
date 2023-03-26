@@ -32,3 +32,9 @@ Object2D::Object2D(b2Body *body, ImColor color) { // because i will probably nee
     this->color = color;
 
 }
+
+ImVec4 Object2D::set_color(ImVec4 newColor) {
+    color = newColor;
+    return color;
+
+}

@@ -35,6 +35,7 @@ private:
 
     Scene2DManager* m_scene2DManager;
     float delta_time = 1.0f / ImGui::GetIO().Framerate;
+    bool clicked = false;
 
 
 public:

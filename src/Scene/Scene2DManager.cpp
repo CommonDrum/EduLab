@@ -148,34 +148,25 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
 
 
         ImColor im_color = item->get_color();
-
-
         b2Body* body = item->get_body();
+
+        // Extract data from body
         ImVec2 screenPosition = world_to_screen(body->GetPosition());
-
-       //std::cout << "Screen position: " << screenPosition.x << ", " << screenPosition.y << std::endl;
-
-
-
-        // add camera position
-        // multiply by zoom
-
-
-
         float angle = body->GetAngle();
-        //get size of the box
         b2Shape* shape = body->GetFixtureList()->GetShape();
         b2Shape::Type shapeType = shape->GetType();
 
+        // Declare variables
         float width = 0.0f;
         float height = 0.0f;
         float radius = 0.0f;
+
+        // Add to draw list depending on shape type
         switch (shapeType) {
             case b2Shape::e_circle:
             {
                 auto* circleShape = dynamic_cast<b2CircleShape*>(shape);
                 radius = circleShape->m_radius * camera.zoom;
-                // add to draw list with camera applied and angle
                 this->DrawCircle(screenPosition, radius, angle, im_color);
                 break;
             }
@@ -189,7 +180,6 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
 
                 width = (aabb.upperBound.x - aabb.lowerBound.x) * camera.zoom;
                 height = (aabb.upperBound.y - aabb.lowerBound.y) * camera.zoom;
-                // transform to screen coordinates
 
                 this->DrawRectangle(screenPosition, ImVec2(width, height), angle, im_color, draw_list);
                 break;
@@ -246,10 +236,10 @@ ImVec2 Scene2DManager::world_to_screen(const b2Vec2 &worldCoords) {
     Camera camera = *current_scene_->get_camera();
     ImVec2 screenCoords = ImVec2(worldCoords.x, worldCoords.y);
 
-    screenCoords.x *= camera.zoom; // multiply by zoom
+    screenCoords.x *= camera.zoom;
     screenCoords.y *= camera.zoom;
 
-    screenCoords.x -= camera.x; // add camera position
+    screenCoords.x -= camera.x;
     screenCoords.y += camera.y;
 
     screenCoords.x +=  camera.sX;
@@ -257,6 +247,31 @@ ImVec2 Scene2DManager::world_to_screen(const b2Vec2 &worldCoords) {
 
 
     return screenCoords;
+}
+
+void Scene2DManager::highlight_object_click(b2Vec2 point) {
+    Object2D *object = object_at_point(point);
+    if (object != nullptr){
+        //object->set_color(ImVec4());
+        this->highlighted_object_ = object;
+        std::cout << "Object clicked" << std::endl;
+    }
+    else{
+        if (this->highlighted_object_ != nullptr){
+            //this->highlighted_object_->set_color(ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+            this->highlighted_object_ = nullptr;
+        }
+    }
+
+
+}
+
+void Scene2DManager::move_highlighted_object(b2Vec2 point) {
+    if (this->highlighted_object_ != nullptr){
+        float angle = this->highlighted_object_->get_body()->GetAngle();
+        this->highlighted_object_->get_body()->SetTransform(point,angle);
+    }
+
 }
 
 
