@@ -3,6 +3,8 @@
 //
 #include "Scene2DManager.h"
 
+
+
 void Scene2DManager::create_scene(std::string name) {
     auto *new_scene = new Scene2D(std::move(name));
     if (scenes_.empty()) {
@@ -67,11 +69,7 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
     return body;
 }
 
-void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color,
-                                   ImDrawList* drawList) {
-    //apply camera on size and position
-    const Camera camera = *current_scene_->get_camera();
-
+void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color,ImDrawList* drawList) {
 
     ImVec2 halfSize = ImVec2(size.x * 0.5f, size.y * 0.5f);
     ImVec2 corners[4] = {
@@ -250,56 +248,45 @@ ImVec2 Scene2DManager::world_to_screen(const b2Vec2 &worldCoords) {
 }
 
 void Scene2DManager::highlight_object_click(b2Vec2 point) {
+
     Object2D *object = object_at_point(point);
     if (object != nullptr){
-        //object->set_color(ImVec4());
         this->highlighted_object_ = object;
-        std::cout << "Object clicked" << std::endl;
     }
     else{
-        if (this->highlighted_object_ != nullptr){
-            //this->highlighted_object_->set_color(ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+        if (this->highlighted_object_ != nullptr)
             this->highlighted_object_ = nullptr;
-        }
     }
 
 
 }
 
 void Scene2DManager::move_highlighted_object(b2Vec2 point) { // for edit mode
-
+    if (this->highlighted_object_ != nullptr && !running){
         float angle = this->highlighted_object_->get_body()->GetAngle();
         this->highlighted_object_->get_body()->SetTransform(point,angle);
+    }
 
 
 }
 
 void Scene2DManager::attach_mouse_joint(b2Vec2 point) { // for play mode
-
+     if (running)
         current_scene_->MouseDown(point);
 
 }
 
-Scene2DManager::Scene2DManager() {
-    this->running = false;
-    this->highlighted_object_ = nullptr;
-    this->mouse_joint_ = nullptr;
 
-
-}
 
 void Scene2DManager::detach_mouse_joint() {
-
-        current_scene_->MouseUp();
+    if (running)
+            current_scene_->MouseUp();
 
 }
 
-b2MouseJoint *Scene2DManager::get_mouse_joint() {
-    return this->mouse_joint_;
-}
 
 void Scene2DManager::move_mouse_joint(b2Vec2 point) {
-
+    if (running)
         current_scene_->MouseMove(point);
 
 }

@@ -111,7 +111,7 @@ void Scene2D::MouseUp() {
     if (mouseJoint_)
     {
         world_->DestroyJoint(mouseJoint_);
-        mouseJoint_ = nullptr;
+        mouseJoint_ = NULL;
     }
 }
 

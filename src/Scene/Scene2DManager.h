@@ -15,10 +15,9 @@ private:
     Scene2D * current_scene_;
     Scene2D * original_scene_;
     Object2D * highlighted_object_;
-    b2MouseJoint * mouse_joint_;
-    bool m_running = true;
+    bool m_running = false;
 public:
-    Scene2DManager();
+
     void create_scene(std::string name) ;
 
 
@@ -31,10 +30,10 @@ public:
     Object2D * object_at_point(b2Vec2 point);
     void highlight_object_click(b2Vec2 point);
     void move_highlighted_object(b2Vec2 point);
+
     void attach_mouse_joint(b2Vec2 point);
     void detach_mouse_joint();
     void move_mouse_joint(b2Vec2 point);
-    b2MouseJoint * get_mouse_joint();
 
     ImVec2 world_to_screen(const b2Vec2& worldCoords);
     b2Vec2 screen_to_world(const ImVec2& screenCoords);

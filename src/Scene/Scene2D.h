@@ -70,7 +70,7 @@ private:
     std::vector<Object2D*> objects_;
     Camera camera_ = Camera(0, 0, 10, 0, 0);
     b2Body* groundBody_;
-    b2MouseJoint* mouseJoint_;
+    b2MouseJoint* mouseJoint_ = NULL;
     b2Vec2 mouseWorld_;
 
     std::string name_;

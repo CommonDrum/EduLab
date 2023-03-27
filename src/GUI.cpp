@@ -20,21 +20,6 @@ void GUI::menuBar(bool* done) {
         ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("File")) {
-        if (ImGui::MenuItem("New", "Ctrl+N")) {
-            //Open();
-        }
-        if (ImGui::MenuItem("Open", "Ctrl+O")) {
-            //Open();
-        }
-        if (ImGui::MenuItem("Save", "Ctrl+S")) {
-            //Save();
-        }
-        if (ImGui::MenuItem("Save As", "Ctrl+Shift+S")) {
-            //SaveAs();
-        }
-        ImGui::EndMenu();
-    }
 
     if(m_scene2DManager->running == false) {
         if (ImGui::Button("Play")) {
@@ -45,15 +30,7 @@ void GUI::menuBar(bool* done) {
         if (ImGui::Button("Stop")) {
             m_scene2DManager->running = false;
         }
-       // ImGui::EndMenu();
     }
-
-
-
-
-
-
-
 
     ImGui::EndMainMenuBar();
 
@@ -62,7 +39,7 @@ void GUI::menuBar(bool* done) {
 void GUI::fileExplorer() {
     ImGui::Begin("File Explorer");
 
-// Make sure you have a valid b2World pointer called 'world'
+    // Make sure you have a valid b2World pointer called 'world'
     ImGui::Text("Body Count: %zu", m_scene2DManager->get_current_scene()->get_objects().size());
 
     ImGui::End();
@@ -95,9 +72,10 @@ void GUI::tools() {
     ImGui::Combo("Body Shape", &bodyShapeIdx, bodyShapes, IM_ARRAYSIZE(bodyShapes));
     ImGui::Combo("Body Type", &bodyTypeIdx, bodyTypes, IM_ARRAYSIZE(bodyTypes));
 
-    ImGui::SliderFloat("X", &x, -1000.0f, 1000.0f);
-    ImGui::SliderFloat("Y", &y, -1000.0f, 1000.0f);
-    ImGui::SliderFloat("Rotation", &rotation, -180.0f, 180.0f);
+
+    ImGui::InputFloat("X", &x);
+    ImGui::InputFloat("Y", &y);
+    ImGui::SliderFloat("Rotation", &rotation, -1.f, 1.f);
 
     if (bodyShapeIdx == 0) { // Circle creation
         ImGui::InputFloat("Radius", &radius);
@@ -136,7 +114,7 @@ void GUI::mainViewport() {
 
 
 
-    // Update the camera based on ImGui IO within the ImGui window
+    // User Input
     if (ImGui::IsWindowHovered()) {
         float cameraSpeed = 10.0f;
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))){
@@ -190,6 +168,11 @@ void GUI::mainViewport() {
     }
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // Draw ui of highlighted object
+
+
+
     m_scene2DManager->draw_scene(draw_list);
 
 
