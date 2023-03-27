@@ -38,8 +38,21 @@ void GUI::menuBar(bool* done) {
 
 void GUI::fileExplorer() {
     ImGui::Begin("File Explorer");
+    static float width = 1.0f;
+    static float height = 1.0f;
+    static float rotation = 0.0f;
+
+    ImGui::InputFloat("Width", &width);
+    ImGui::InputFloat("Height", &height);
+    ImGui::InputFloat("Rotation", &rotation);
+    if (ImGui::Button("Change Rectangle")) {
+    //m_scene2DManager->resize_highlighted_object(b2Vec2(width, height));
+    m_scene2DManager->rotate_highlighted_object(rotation);
+    }
+
 
     // Make sure you have a valid b2World pointer called 'world'
+
     ImGui::Text("Body Count: %zu", m_scene2DManager->get_current_scene()->get_objects().size());
 
     ImGui::End();
@@ -91,7 +104,7 @@ void GUI::tools() {
         ImGui::ColorEdit4("Color", (float*)&boxColor);
         if (ImGui::Button("Create Rectangle")) {
             auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
-            m_scene2DManager->CreateBox(x, y, width, height, bodyType, boxColor, rotation);
+            m_scene2DManager->CreateBox(x, y, width, height, bodyType, boxColor, rotation, 1.0f, 0.3f, 10.0f);
             }
         }
 

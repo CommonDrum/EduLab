@@ -20,11 +20,22 @@ for (auto &scene : scenes_) {
     }
     return names;
 }
+Scene2D *Scene2DManager::get_current_scene() {
+    return current_scene_;
+}
+
+void Scene2DManager::update() { // called by main.cpp
+    if (this->running) {
+        this->current_scene_->get_world()->Step(1.0f / 60.0f, 6, 2);
+    }
+}
 
 
+// OBJECT CREATION ------------------------------------------------------------------------------------------------------------
 
-
-void * Scene2DManager::CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle) {
+void * Scene2DManager::CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color,
+                                 float angle,
+                                 float density, float friction, float restitution) {
     b2BodyDef bodyDef;
     bodyDef.position.Set(x, y);
     bodyDef.type = bodyType;
@@ -35,8 +46,9 @@ void * Scene2DManager::CreateBox(float x, float y, float width, float height, b2
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.3f;
+    fixtureDef.density = density;
+    fixtureDef.friction = friction;
+    fixtureDef.restitution = restitution;
 
     b2Body* body = current_scene_->get_world()->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
@@ -47,7 +59,8 @@ void * Scene2DManager::CreateBox(float x, float y, float width, float height, b2
     return body;
 }
 
-b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle) {
+b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle,
+                                      float density, float friction, float restitution) {
     b2BodyDef bodyDef;
     bodyDef.position.Set(x, y);
     bodyDef.type = bodyType;
@@ -58,8 +71,9 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.3f;
+    fixtureDef.density = density;
+    fixtureDef.friction = friction;
+    fixtureDef.restitution = restitution;
 
     b2Body* body = current_scene_->get_world()->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
@@ -68,7 +82,7 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
 
     return body;
 }
-
+// DRAWING FUNCTIONS --------------------------------------------------------------------------------------------------------------
 void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color,ImDrawList* drawList) {
 
     ImVec2 halfSize = ImVec2(size.x * 0.5f, size.y * 0.5f);
@@ -90,9 +104,6 @@ void Scene2DManager::DrawRectangle(const ImVec2 &position, const ImVec2 &size, f
         corner.x = x + position.x;
         corner.y = y + position.y;
     }
-
-    //Apply camera
-
 
     // Draw rectangle
     for (int i = 0; i < 4; ++i) {
@@ -190,18 +201,7 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
     }
 }
 
-Scene2D *Scene2DManager::get_current_scene() {
-    return current_scene_;
-}
-
-void Scene2DManager::update() { // called by main.cpp
-    if (this->running){
-        this->current_scene_->get_world()->Step(1.0f / 60.0f, 6, 2);
-    }
-
-
-}
-
+// INTERACTION WITH THE WORLD ------------------------------------------------------------
 Object2D *Scene2DManager::object_at_point(b2Vec2 point) {
     for (auto &item : current_scene_->get_objects()) {
         b2Body* body = item->get_body();
@@ -288,6 +288,19 @@ void Scene2DManager::detach_mouse_joint() {
 void Scene2DManager::move_mouse_joint(b2Vec2 point) {
     if (running)
         current_scene_->MouseMove(point);
+
+}
+
+void Scene2DManager::resize_highlighted_object(b2Vec2 newSize) {
+    if (this->highlighted_object_ != nullptr && !running){
+        highlighted_object_->resize(newSize);
+    }
+}
+
+void Scene2DManager::rotate_highlighted_object(float angle) {
+    if (this->highlighted_object_ != nullptr && !running){
+        highlighted_object_->rotate(angle);
+    }
 
 }
 

@@ -116,7 +116,7 @@ void Scene2D::MouseUp() {
 }
 
 Object2D::Object2D(b2Body *body, ImColor color) { // because i will probably need body to store more inforamtion  like forces etc
-    this->body = body;
+    this->body_ = body;
     this->color = color;
 
 }

@@ -9,15 +9,85 @@
 
 class Object2D {
 private:
-    b2Body* body{};
+    b2Body* body_{};
     ImVec4 color;
 public:
     Object2D(b2Body* body, ImColor color);
 
     // getter methods
-    b2Body* get_body() { return body; }
+    b2Body* get_body() { return body_; }
     ImVec4 get_color() { return color; }
     ImVec4 set_color(ImVec4 newColor);
+
+    void resize(b2Vec2 newSize)
+
+    {
+        b2Body* oldBody = body_;
+        b2World* world = oldBody->GetWorld();
+        float newWidth = newSize.x;
+        float newHeight = newSize.y;
+
+        // Store the old body's properties
+        b2Vec2 position = oldBody->GetPosition();
+        float angle = oldBody->GetAngle();
+        b2BodyType bodyType = oldBody->GetType();
+        b2Fixture* fixture = oldBody->GetFixtureList();
+
+        // Destroy the old body
+        world->DestroyBody(oldBody);
+
+        // Create a new body with the new size
+        b2BodyDef bodyDef;
+        bodyDef.type = bodyType;
+        bodyDef.position.Set(position.x, position.y);
+        bodyDef.angle = angle;
+        b2Body* newBody = world->CreateBody(&bodyDef);
+
+        if (fixture->GetType() == b2Shape::e_circle)
+        {
+            // Create a new circle shape with the new radius
+            auto* circleShape = dynamic_cast<b2CircleShape*>(fixture->GetShape());
+            float newRadius = (newWidth); // average of new width and height
+            circleShape->m_radius = newRadius;
+
+            // Create a new fixture with the new circle shape
+            b2FixtureDef fixtureDef;
+            fixtureDef.shape = circleShape;
+            fixtureDef.density = fixture->GetDensity();
+            fixtureDef.friction = fixture->GetFriction();
+            fixtureDef.restitution = fixture->GetRestitution();
+            newBody->CreateFixture(&fixtureDef);
+        }
+        else if (fixture->GetType() == b2Shape::e_polygon)
+        {
+            // Create a new polygon shape with the new width and height
+            b2PolygonShape newShape;
+            newShape.SetAsBox(newWidth / 2.0f, newHeight / 2.0f);
+
+            // Create a new fixture with the new polygon shape
+            b2FixtureDef fixtureDef;
+            fixtureDef.shape = &newShape;
+            fixtureDef.density = fixture->GetDensity();
+            fixtureDef.friction = fixture->GetFriction();
+            fixtureDef.restitution = fixture->GetRestitution();
+            newBody->CreateFixture(&fixtureDef);
+        }
+    }
+
+    void changeAttributes(b2Body* body, float newFriction, float newDensity, float newRestitution)
+    {
+        // Get the body's fixture list
+        b2Fixture* fixture = body->GetFixtureList();
+
+        // Get the body's current properties
+
+        fixture->SetFriction(newFriction);
+        fixture->SetDensity(newDensity);
+        fixture->SetRestitution(newRestitution);
+    }
+    void rotate(float angle) {
+        body_->SetTransform(body_->GetPosition(), angle);
+    }
 };
 
 
@@ -56,9 +126,7 @@ public:
     [[nodiscard]] const std::string& get_name() const { return name_; }
 
     void MouseDown(const b2Vec2 &p);
-
     void MouseUp();
-
     void MouseMove(const b2Vec2 &p);
 
     void add_object(b2Body* body, ImVec4 color);
