@@ -55,6 +55,12 @@ public:
     Camera* get_camera() { return &camera_; }
     [[nodiscard]] const std::string& get_name() const { return name_; }
 
+    void MouseDown(const b2Vec2 &p);
+
+    void MouseUp();
+
+    void MouseMove(const b2Vec2 &p);
+
     void add_object(b2Body* body, ImVec4 color);
     void delete_object(b2Body* body);
 
@@ -63,7 +69,13 @@ private:
     std::vector<std::pair<b2Body*, ImVec4>> bodies_;
     std::vector<Object2D*> objects_;
     Camera camera_ = Camera(0, 0, 10, 0, 0);
+    b2Body* groundBody_;
+    b2MouseJoint* mouseJoint_;
+    b2Vec2 mouseWorld_;
+
     std::string name_;
+
+
 };
 
 

@@ -152,28 +152,40 @@ void GUI::mainViewport() {
             cam->x += cameraSpeed;
         }
 
+        // Zoom Controls
         float zoomSpeed = 0.5f;
-
         cam->zoom += ImGui::GetIO().MouseWheel * zoomSpeed;
         if (cam->zoom < 0.1f) {
             cam->zoom = 0.1f;
         }
 
-        if (ImGui::IsMouseClicked(0)) {
+        // Body Movement
+        if (ImGui::IsMouseClicked(0) && !m_scene2DManager->running) {
             b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
             m_scene2DManager->highlight_object_click(mousePos);
             clicked = true;
         }
-        if (clicked && ImGui::IsMouseDragging(0)) // Check if dragging
+        else if(ImGui::IsMouseClicked(0) && m_scene2DManager->running) {
+            b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+            m_scene2DManager->attach_mouse_joint(mousePos);
+            clicked = true;
+        }
+
+        if (clicked && ImGui::IsMouseDragging(0) &&  !m_scene2DManager->running) // Check if dragging
             {
-                b2Vec2 mmousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
-                m_scene2DManager->move_highlighted_object(mmousePos);
+                b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+                m_scene2DManager->move_highlighted_object(mousePos);
+            }
+        else if (clicked &&  ImGui::IsMouseDragging(0) && m_scene2DManager->running) // Check if dragging
+            {
+                b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+                m_scene2DManager->move_mouse_joint(mousePos);
                 std::cout << "Dragging" << std::endl;
             }
 
         else if (ImGui::IsMouseReleased(0)) {
             clicked = false;
-            std::cout << "Released" << std::endl;
+            m_scene2DManager->detach_mouse_joint();
         }
     }
 

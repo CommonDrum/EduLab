@@ -266,11 +266,41 @@ void Scene2DManager::highlight_object_click(b2Vec2 point) {
 
 }
 
-void Scene2DManager::move_highlighted_object(b2Vec2 point) {
-    if (this->highlighted_object_ != nullptr){
+void Scene2DManager::move_highlighted_object(b2Vec2 point) { // for edit mode
+
         float angle = this->highlighted_object_->get_body()->GetAngle();
         this->highlighted_object_->get_body()->SetTransform(point,angle);
-    }
+
+
+}
+
+void Scene2DManager::attach_mouse_joint(b2Vec2 point) { // for play mode
+
+        current_scene_->MouseDown(point);
+
+}
+
+Scene2DManager::Scene2DManager() {
+    this->running = false;
+    this->highlighted_object_ = nullptr;
+    this->mouse_joint_ = nullptr;
+
+
+}
+
+void Scene2DManager::detach_mouse_joint() {
+
+        current_scene_->MouseUp();
+
+}
+
+b2MouseJoint *Scene2DManager::get_mouse_joint() {
+    return this->mouse_joint_;
+}
+
+void Scene2DManager::move_mouse_joint(b2Vec2 point) {
+
+        current_scene_->MouseMove(point);
 
 }
 
