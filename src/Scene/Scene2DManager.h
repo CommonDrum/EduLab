@@ -20,6 +20,8 @@ public:
 
     void create_scene(std::string name) ;
     void reset_scene();
+    void save_scene(std::string name);
+    void load_scene(std::string name);
 
 
     void *CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle = 0.0f,

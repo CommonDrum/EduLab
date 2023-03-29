@@ -117,6 +117,7 @@ void Scene2D::MouseUp() {
     }
 }
 
+// TODO: ADD VELOCITY TO DESERIALIZER
 void Scene2D::serialize(std::string filename) {
     json j;
     j["name"] = name_;
@@ -147,10 +148,12 @@ void Scene2D::serialize(std::string filename) {
 
 void Scene2D::deserialize(std::string filename) {
     // Clear existing data
-    for (auto object : objects_) {
-        this->delete_object(object->get_body());
+    for (int i = 0; i < objects_.size(); i++) {
+        Object2D* object = objects_[i];
+        world_->DestroyBody(object->get_body());
     }
-    
+    objects_.clear();
+
 
     // Load serialized data from file
     std::ifstream file(filename);
@@ -163,16 +166,20 @@ void Scene2D::deserialize(std::string filename) {
     // Set gravity
     world_->SetGravity(b2Vec2(j["gravity"][0], j["gravity"][1]));
 
+
+
     // Create objects
     for (auto object : j["objects"]) {
+        ImVec4 color = {object["color"][0], object["color"][1], object["color"][2], object["color"][3]};
+
         if (object["shape"] == 2) {
             CreateBox(object["position"][0], object["position"][1], object["size"][0], object["size"][1],
-                      (b2BodyType) object["type"], {0.5f, 0.5f, 0.5f, 1.0f}, object["angle"],
+                      (b2BodyType) object["type"], color, object["angle"],
                       object["density"], object["friction"], object["restitution"]);
         }
-        else if(object["shape"] == 1){
+        else if(object["shape"] == 0){
             CreateCircle(object["position"][0], object["position"][1], object["size"][0],
-                      (b2BodyType) object["type"], {0.5f, 0.5f, 0.5f, 1.0f}, object["angle"],
+                      (b2BodyType) object["type"], color, object["angle"],
                       object["density"], object["friction"], object["restitution"]);
         }
     }

@@ -307,6 +307,24 @@ void Scene2DManager::rotate_highlighted_object(float angle) {
 
 void Scene2DManager::reset_scene() {
 
+
+}
+
+void Scene2DManager::save_scene(std::string name) {
+    bool is_running = running;
+    running = false;
+    current_scene_->serialize(name);
+    running = is_running;
+
+
+}
+
+void Scene2DManager::load_scene(std::string name) {
+    bool is_running = running;
+    running = false;
+    current_scene_->deserialize(name);
+    running = is_running;
+
 }
 
 

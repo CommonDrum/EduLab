@@ -31,13 +31,13 @@ void GUI::menuBar(bool* done) {
             m_scene2DManager->running = false;
         }
     }
-    if (ImGui::Button("Serialize")) {
+    if (ImGui::Button("Save")) {
         std::string name = m_scene2DManager->get_current_scene()->get_name();
-        m_scene2DManager->get_current_scene()->serialize(name);
+        m_scene2DManager->save_scene(name);
     }
-    if (ImGui::Button("Deserialize")) {
+    if (ImGui::Button("Load")) {
         std::string name = m_scene2DManager->get_current_scene()->get_name();
-        m_scene2DManager->get_current_scene()->deserialize(name);
+        m_scene2DManager->load_scene(name);
     }
     ImGui::EndMainMenuBar();
 
@@ -85,6 +85,11 @@ void GUI::tools() {
     const char* bodyShapes[] = { "Circle", "Rectangle" };
     static int bodyShapeIdx = 1; // Default to rectangle
 
+    static float density = 1.0f;
+    static float friction = 0.3f;
+    static float restitution = 0.5f;
+
+
     static ImVec4 boxColor(1.0f, 1.0f, 1.0f, 1.0f); // Default color (white)
 
 
@@ -96,13 +101,17 @@ void GUI::tools() {
     ImGui::InputFloat("X", &x);
     ImGui::InputFloat("Y", &y);
     ImGui::SliderFloat("Rotation", &rotation, -1.f, 1.f);
+    ImGui::InputFloat("Density", &density);
+    ImGui::InputFloat("Friction", &friction);
+    ImGui::InputFloat("Bounce", &restitution);
+
 
     if (bodyShapeIdx == 0) { // Circle creation
         ImGui::InputFloat("Radius", &radius);
         ImGui::ColorEdit4("Color", (float *) &boxColor);
         if (ImGui::Button("Create Circle")) {
             auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
-            m_scene2DManager->CreateCircle(x, y, radius, bodyType, boxColor, rotation);
+            m_scene2DManager->CreateCircle(x, y, radius, bodyType, boxColor, rotation, density, friction, restitution);
         }
     }
     else if(bodyShapeIdx == 1) { // Rectangle creation
@@ -111,7 +120,7 @@ void GUI::tools() {
         ImGui::ColorEdit4("Color", (float*)&boxColor);
         if (ImGui::Button("Create Rectangle")) {
             auto bodyType = static_cast<b2BodyType>(bodyTypeIdx);
-            m_scene2DManager->CreateBox(x, y, width, height, bodyType, boxColor, rotation, 1.0f, 0.3f, 10.0f);
+            m_scene2DManager->CreateBox(x, y, width, height, bodyType, boxColor, rotation, density, friction, restitution);
             }
         }
 
