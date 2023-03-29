@@ -31,7 +31,14 @@ void GUI::menuBar(bool* done) {
             m_scene2DManager->running = false;
         }
     }
-
+    if (ImGui::Button("Serialize")) {
+        std::string name = m_scene2DManager->get_current_scene()->get_name();
+        m_scene2DManager->get_current_scene()->serialize(name);
+    }
+    if (ImGui::Button("Deserialize")) {
+        std::string name = m_scene2DManager->get_current_scene()->get_name();
+        m_scene2DManager->get_current_scene()->deserialize(name);
+    }
     ImGui::EndMainMenuBar();
 
 }

@@ -17,6 +17,8 @@
 #include "imgui_impl_opengl3.h"
 #include <iostream>
 #include <stdio.h>
+#include "json.hpp"
+#include "fstream"
 //#include <SDL.h>
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)

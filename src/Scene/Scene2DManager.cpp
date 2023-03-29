@@ -53,7 +53,7 @@ void * Scene2DManager::CreateBox(float x, float y, float width, float height, b2
     b2Body* body = current_scene_->get_world()->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
 
-    current_scene_->add_object(body, color);
+    current_scene_->add_object(body, color, b2Vec2(width, height));
 
     // return the pair
     return body;
@@ -78,7 +78,7 @@ b2Body * Scene2DManager::CreateCircle(float x, float y, float radius, b2BodyType
     b2Body* body = current_scene_->get_world()->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
 
-    current_scene_->add_object(body, color);
+    current_scene_->add_object(body, color, b2Vec2(radius, radius));
 
     return body;
 }
@@ -153,6 +153,7 @@ void Scene2DManager::DrawFilledRectangle(const ImVec2& position, const ImVec2& s
 
 void Scene2DManager::draw_scene(ImDrawList *draw_list) {
     Camera camera = *current_scene_->get_camera();
+    if(current_scene_->get_objects().empty()) return;
     for (auto &item : current_scene_->get_objects()) {
 
 
@@ -301,6 +302,10 @@ void Scene2DManager::rotate_highlighted_object(float angle) {
     if (this->highlighted_object_ != nullptr && !running){
         highlighted_object_->rotate(angle);
     }
+
+}
+
+void Scene2DManager::reset_scene() {
 
 }
 

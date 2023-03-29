@@ -19,6 +19,7 @@ private:
 public:
 
     void create_scene(std::string name) ;
+    void reset_scene();
 
 
     void *CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle = 0.0f,

@@ -7,16 +7,20 @@
 
 #include "core.h"
 
+
 class Object2D {
 private:
     b2Body* body_{};
     ImVec4 color;
+    b2Vec2 size;
 public:
-    Object2D(b2Body* body, ImColor color);
+    Object2D(b2Body* body, ImColor color, b2Vec2 size);
 
     // getter methods
     b2Body* get_body() { return body_; }
     ImVec4 get_color() { return color; }
+    b2Vec2 get_size() { return size; }
+    b2Vec2 set_size(b2Vec2 newSize) { size = newSize; }
     ImVec4 set_color(ImVec4 newColor);
 
     void resize(b2Vec2 newSize)
@@ -57,6 +61,7 @@ public:
             fixtureDef.friction = fixture->GetFriction();
             fixtureDef.restitution = fixture->GetRestitution();
             newBody->CreateFixture(&fixtureDef);
+            set_size(b2Vec2(newRadius, newRadius));
         }
         else if (fixture->GetType() == b2Shape::e_polygon)
         {
@@ -71,6 +76,7 @@ public:
             fixtureDef.friction = fixture->GetFriction();
             fixtureDef.restitution = fixture->GetRestitution();
             newBody->CreateFixture(&fixtureDef);
+            set_size(b2Vec2(newWidth, newHeight));
         }
     }
 
@@ -120,7 +126,6 @@ public:
 
     // getter methods
     b2World* get_world() { return world_; }
-    std::vector<std::pair<b2Body*, ImVec4>>& get_bodies() { return bodies_; }
     std::vector<Object2D*>& get_objects() { return objects_; }
     Camera* get_camera() { return &camera_; }
     [[nodiscard]] const std::string& get_name() const { return name_; }
@@ -129,12 +134,17 @@ public:
     void MouseUp();
     void MouseMove(const b2Vec2 &p);
 
-    void add_object(b2Body* body, ImVec4 color);
+    void add_object(b2Body* body, ImVec4 color, b2Vec2 size);
     void delete_object(b2Body* body);
+
+
+    void serialize(std::string filename);
+    void deserialize(std::string filename);
+
+
 
 private:
     b2World* world_;
-    std::vector<std::pair<b2Body*, ImVec4>> bodies_;
     std::vector<Object2D*> objects_;
     Camera camera_ = Camera(0, 0, 10, 0, 0);
     b2Body* groundBody_;
@@ -144,6 +154,12 @@ private:
     std::string name_;
 
 
+    void * CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle,
+              float density,
+              float friction, float restitution);
+
+    b2Body *CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle, float density,
+                         float friction, float restitution);
 };
 
 

@@ -4,6 +4,8 @@ project(EduLab)
 set(CMAKE_CXX_STANDARD 17)
 
 
+find_package(Boost 1.75.0 REQUIRED COMPONENTS filesystem system)
+
 
 if(APPLE)
     find_package(SDL2 REQUIRED)
@@ -18,13 +20,17 @@ add_subdirectory(vendor/box2d)
 add_subdirectory(vendor/glm)
 
 
+
 include_directories(vendor/box2d/include
         vendor/imgui
         vendor/imgui/backends
         vendor/SDL/include
         vendor/glm
         src
+        ${Boost_INCLUDE_DIRS}
+        vendor/nlohmann
         )
+
 
 
 
@@ -37,5 +43,6 @@ else()
 
     target_link_libraries(${PROJECT_NAME} opengl32 OpenGL::GL )
 endif()
+target_include_directories(${PROJECT_NAME} PRIVATE vendor/nlohmann)
 
-target_link_libraries(${PROJECT_NAME} box2d  glfw imgui SDL2::SDL2 glm)
+target_link_libraries(${PROJECT_NAME} box2d  glfw imgui SDL2::SDL2 ${Boost_LIBRARIES})
