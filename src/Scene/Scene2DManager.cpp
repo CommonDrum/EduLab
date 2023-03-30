@@ -26,7 +26,7 @@ Scene2D *Scene2DManager::get_current_scene() {
 
 void Scene2DManager::update() { // called by main.cpp
     if (this->running) {
-        this->current_scene_->get_world()->Step(1.0f / 60.0f, 6, 2);
+        this->current_scene_->get_world()->Step(1.0f / 120.0f, 6, 2);
     }
 }
 
@@ -210,6 +210,7 @@ Object2D *Scene2DManager::object_at_point(b2Vec2 point) {
         if (fixture->TestPoint(point)){
             return item;
         }
+
     }
     return nullptr;
 }
@@ -326,6 +327,55 @@ void Scene2DManager::load_scene(std::string name) {
     running = is_running;
 
 }
+
+json Scene2DManager::get_highlighted_stats() {
+    json stats;
+    if (this->highlighted_object_ != nullptr){
+        return highlighted_object_->get_stats();
+    }
+    else{
+        return stats;
+    }
+
+}
+
+void Scene2DManager::print_forces(ImDrawList * draw_list) {
+    if(highlighted_object_ != nullptr) {
+        std::vector<b2Vec2> forces;
+        forces = highlighted_object_->get_forces();
+        // print the forces
+        for (auto &force: forces) {
+            if (force.Length() < 0.9) continue;
+            force *= 0.1;
+            b2Vec2 position = highlighted_object_->get_body()->GetPosition();
+            b2Vec2 arrow_tip = (position + force);
+
+            ImVec2 arrow_screen = this->world_to_screen(arrow_tip);
+            ImVec2 position_screen = this->world_to_screen(highlighted_object_->get_body()->GetPosition());
+            ImU32 color = IM_COL32(255, 0, 0, 255);
+            this->draw_arrow(position_screen,arrow_screen, color, draw_list);
+        }
+    }
+}
+
+void Scene2DManager::draw_arrow(const ImVec2 &position, const ImVec2 &size, ImU32 color, ImDrawList *drawList) {
+
+    ImVec2 p1 = position;
+    ImVec2 p2 = size;
+
+    drawList->AddLine(p1, p2, color, 2.0f);
+
+    // calculate the angle of the line
+    float angle = atan2(p1.y - p2.y, p1.x - p2.x);
+    // starting point of the first line of the arrow head
+    ImVec2 p3 = ImVec2(p2.x + 10 * cos(angle + M_PI / 6), p2.y + 10 * sin(angle + M_PI / 6));
+    // starting point of the second line of the arrow head
+    ImVec2 p4 = ImVec2(p2.x + 10 * cos(angle - M_PI / 6), p2.y + 10 * sin(angle - M_PI / 6));
+    // draw triangle
+    drawList->AddTriangleFilled(p2, p3, p4, color);
+}
+
+
 
 
 

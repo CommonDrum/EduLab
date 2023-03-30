@@ -4,7 +4,7 @@
 
 #include "Scene2D.h"
 
-using json = nlohmann::json;
+
 
 class QueryCallback : public b2QueryCallback
 {
@@ -49,6 +49,8 @@ Scene2D::Scene2D(std::string name) {
 
 void Scene2D::add_object(b2Body *body, ImVec4 color, b2Vec2 size) {
     auto* object = new Object2D(body, color, size);
+
+
     objects_.push_back(object);
 }
 
@@ -251,6 +253,46 @@ ImVec4 Object2D::set_color(ImVec4 newColor) {
     color = newColor;
     return color;
 
+}
+
+json Object2D::get_stats() {
+    json j;
+    j["size"]= 1;
+
+    return j;
+}
+
+std::vector<b2Vec2> Object2D::get_forces() {
+
+
+    std::vector<b2Vec2> forces;
+    forces.push_back( body_->GetMass() * body_->GetWorld()->GetGravity());
+
+
+
+
+    b2ContactEdge* contactEdge = body_->GetContactList();
+    while (contactEdge != nullptr) {
+        // Access the contact information
+        b2Contact *contact = contactEdge->contact;
+
+        // Get the contact force/*
+        b2Vec2 contactForce(0.0f, 0.0f);
+        if (contact->IsTouching()) {
+            b2WorldManifold worldManifold;
+            contact->GetWorldManifold(&worldManifold);
+
+            for (int i = 0; i < contact->GetManifold()->pointCount; ++i) {
+                contactForce += contact->GetManifold()->points[i].normalImpulse * worldManifold.normal;
+            }
+        }
+
+        forces.push_back(contactForce);
+        // Move to the next contact edge
+        contactEdge = contactEdge->next;
+    }
+
+    return forces;
 }
 
 

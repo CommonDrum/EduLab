@@ -45,6 +45,8 @@ void GUI::menuBar(bool* done) {
 
 void GUI::fileExplorer() {
     ImGui::Begin("File Explorer");
+
+
     static float width = 1.0f;
     static float height = 1.0f;
     static float rotation = 0.0f;
@@ -201,7 +203,7 @@ void GUI::mainViewport() {
     // Draw ui of highlighted object
 
 
-
+    m_scene2DManager->print_forces(draw_list);
     m_scene2DManager->draw_scene(draw_list);
 
 

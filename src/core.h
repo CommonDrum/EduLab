@@ -27,5 +27,7 @@
 #include <SDL_opengl.h>
 #endif
 
+using json = nlohmann::json;
+
 
 #endif //EDULAB_CORE_H

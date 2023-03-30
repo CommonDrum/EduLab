@@ -14,7 +14,7 @@ private:
     std::vector<Scene2D*> scenes_;
     Scene2D * current_scene_;
     Scene2D * original_scene_;
-    Object2D * highlighted_object_;
+    Object2D * highlighted_object_ = nullptr;
     bool m_running = false;
 public:
 
@@ -31,10 +31,13 @@ public:
 
     void DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color, ImDrawList* drawList);
     void DrawCircle(const ImVec2 &position, float radius, float rotation, ImU32 color);
+    void draw_arrow(const ImVec2 &position, const ImVec2 &size, ImU32 color, ImDrawList* drawList);
 
     Object2D * object_at_point(b2Vec2 point);
     void highlight_object_click(b2Vec2 point);
     void move_highlighted_object(b2Vec2 point);
+    json get_highlighted_stats();
+    void print_forces(ImDrawList *drawList);
 
     void attach_mouse_joint(b2Vec2 point);
     void detach_mouse_joint();

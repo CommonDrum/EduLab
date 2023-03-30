@@ -22,6 +22,8 @@ public:
     b2Vec2 get_size() { return size; }
     b2Vec2 set_size(b2Vec2 newSize) { size = newSize; }
     ImVec4 set_color(ImVec4 newColor);
+    static json get_stats();
+    std::vector<b2Vec2> get_forces();
 
     void resize(b2Vec2 newSize)
 
