@@ -26,7 +26,7 @@ Scene2D *Scene2DManager::get_current_scene() {
 
 void Scene2DManager::update() { // called by main.cpp
     if (this->running) {
-        this->current_scene_->get_world()->Step(1.0f / 120.0f, 6, 2);
+        this->current_scene_->get_world()->Step(1.0f / 60.0f, 6, 2);
     }
 }
 
@@ -339,7 +339,7 @@ json Scene2DManager::get_highlighted_stats() {
 
 }
 
-void Scene2DManager::print_forces(ImDrawList * draw_list) {
+void Scene2DManager::draw_forces(ImDrawList * drawList) {
     if(highlighted_object_ != nullptr) {
         std::vector<b2Vec2> forces;
         forces = highlighted_object_->get_forces();
@@ -353,7 +353,7 @@ void Scene2DManager::print_forces(ImDrawList * draw_list) {
             ImVec2 arrow_screen = this->world_to_screen(arrow_tip);
             ImVec2 position_screen = this->world_to_screen(highlighted_object_->get_body()->GetPosition());
             ImU32 color = IM_COL32(255, 0, 0, 255);
-            this->draw_arrow(position_screen,arrow_screen, color, draw_list);
+            this->draw_arrow(position_screen, arrow_screen, color, drawList);
         }
     }
 }

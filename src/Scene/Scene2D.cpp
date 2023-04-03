@@ -295,5 +295,12 @@ std::vector<b2Vec2> Object2D::get_forces() {
     return forces;
 }
 
+b2Vec2 Object2D::get_velocity() {
+
+
+
+    return this->body_->GetLinearVelocity();
+}
+
 
 

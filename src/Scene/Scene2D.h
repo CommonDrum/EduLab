@@ -24,6 +24,7 @@ public:
     ImVec4 set_color(ImVec4 newColor);
     static json get_stats();
     std::vector<b2Vec2> get_forces();
+    b2Vec2 get_velocity();
 
     void resize(b2Vec2 newSize)
 

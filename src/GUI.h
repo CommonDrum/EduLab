@@ -5,6 +5,7 @@
 #ifndef EDULAB_GUI_H
 #define EDULAB_GUI_H
 #include "core.h"
+#include <filesystem>
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -25,6 +26,11 @@
 #include <Scene/Scene2DManager.h>
 
 
+enum class UI_State {
+    MAIN_MENU,
+    EDITOR,
+    PLAY
+};
 
 
 class GUI {
@@ -39,13 +45,19 @@ private:
 
 
 public:
+    void start(bool *done);
+    void editor(bool *done);
+    void play(bool *done);
     explicit GUI(Scene2DManager* scene2DManager);
     void tools();
-    void fileExplorer();
+    void info();
+    void file_explorer(std::string *selectedFilename);
     void menuBar(bool *done);
     ImVec2 windowCenter();
 
     void mainViewport();
+
+    void main_menu(UI_State *pBoolean);
 };
 
 

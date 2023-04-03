@@ -111,11 +111,7 @@ int main(int, char**)
     manager.create_scene("test");
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     GUI gui(&manager);
-
-
-    //manager.create_scene("test");
-
-    //manager.createEntity();
+    UI_State state = UI_State::MAIN_MENU;
 
 
 //----------------------------------------------------------------------------------END SETUP
@@ -143,10 +139,21 @@ int main(int, char**)
 
 //----------------------------------------------------------------------------------BEGINNING OF PROGRAM SPECIFIC CODE
 
-        gui.menuBar(&done);
-        gui.tools();
-        gui.fileExplorer();
-        gui.mainViewport();
+        switch (state){
+            case UI_State::MAIN_MENU:
+                gui.main_menu(&state);
+                break;
+            case UI_State::EDITOR:
+                gui.editor(&done);
+                break;
+            case UI_State::PLAY:
+                gui.play(&done);
+                break;
+
+        }
+
+
+        gui.start(&done);
         manager.update();
 
 //----------------------------------------------------------------------------------END OF PROGRAM SPECIFIC CODE

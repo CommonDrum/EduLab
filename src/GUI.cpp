@@ -4,10 +4,13 @@
 
 #include "GUI.h"
 #include "imgui_internal.h"
+#include "set"
 
 
-
-
+// TODO: Devide UI into editor and game mode
+// TODO: Add a way to create a new scene
+// TODO: Display a list of scenes in the file explorer
+// TODO: Display more information about the scene and highlighted object
 
 
 void GUI::menuBar(bool* done) {
@@ -39,11 +42,64 @@ void GUI::menuBar(bool* done) {
         std::string name = m_scene2DManager->get_current_scene()->get_name();
         m_scene2DManager->load_scene(name);
     }
+    if (ImGui::Button("New Scene")) {
+        ImGui::OpenPopup("Name Popup");
+    }
+
+    if (ImGui::BeginPopupModal("Name Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        static char name[32] = "";
+        ImGui::InputText("Name", name, IM_ARRAYSIZE(name));
+        if (ImGui::Button("OK", ImVec2(120, 0))) {
+            m_scene2DManager->create_scene(name);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if (ImGui::Button("Change Scene")) {
+        ImGui::OpenPopup("File Popup");
+    }
+
+    if (ImGui::BeginPopupModal("File Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        static std::set<std::string> filenames;
+        const std::string directoryPath = "."; // Current directory
+        for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
+            if (entry.is_regular_file()) {
+                filenames.insert(entry.path().filename().string());
+            }
+        }
+
+        static int selectedFileIndex = -1;
+        int i = 0;
+        for (const auto& filename : filenames) {
+            const bool isSelected = (selectedFileIndex == i);
+            if (ImGui::Selectable(filename.c_str(), isSelected)) {
+                selectedFileIndex = i;
+                const auto it = std::next(filenames.begin(), selectedFileIndex);
+                const std::string selectedFilename = *it;
+                m_scene2DManager->load_scene(selectedFilename);
+
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+            i++;
+        }
+
+        if (ImGui::Button("OK", ImVec2(120, 0)) && selectedFileIndex >= 0) {
+            const auto it = std::next(filenames.begin(), selectedFileIndex);
+            const std::string selectedFilename = *it;
+            m_scene2DManager->load_scene(selectedFilename);
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
     ImGui::EndMainMenuBar();
 
 }
 
-void GUI::fileExplorer() {
+void GUI::info() {
     ImGui::Begin("File Explorer");
 
 
@@ -203,7 +259,7 @@ void GUI::mainViewport() {
     // Draw ui of highlighted object
 
 
-    m_scene2DManager->print_forces(draw_list);
+    m_scene2DManager->draw_forces(draw_list);
     m_scene2DManager->draw_scene(draw_list);
 
 
@@ -224,6 +280,85 @@ ImVec2 GUI::windowCenter() {
     ImVec2 windowPos = ImGui::GetWindowPos();
     ImVec2 center = ImVec2(windowPos.x + windowSize.x / 2.0f, windowPos.y + windowSize.y / 2.0f);
     return center;
+}
+
+void GUI::start(bool *done) {
+
+}
+
+void GUI::editor(bool *done) {
+    menuBar(done);
+    tools();
+    info();
+    mainViewport();
+
+
+}
+
+void GUI::play(bool *done) {
+    mainViewport();
+
+}
+
+void GUI::main_menu(UI_State *pBoolean) {
+
+    ImVec2 windowSize = ImVec2(400, 300);
+    // create a window in the center of the current viewport
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - windowSize.x / 2, ImGui::GetIO().DisplaySize.y / 2 - windowSize.y / 2));
+    ImGui::SetNextWindowSize(windowSize);
+
+    ImGui::Begin("Main Menu", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+
+    ImGui::SetCursorPosY(ImGui::GetWindowSize().y / 2 - ImGui::GetTextLineHeightWithSpacing() - 10);
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 100);
+
+    if (ImGui::Button("Play", ImVec2(200, 0))) {
+        *pBoolean = UI_State::PLAY;
+    }
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing() + 20);
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 100);
+
+    if (ImGui::Button("Editor", ImVec2(200, 0))) {
+        *pBoolean = UI_State::EDITOR;
+    }
+
+    ImGui::End();
+
+
+}
+
+void GUI::file_explorer(std::string *selectedFilename) {
+
+
+    const std::string directoryPath = "/";
+    std::vector<std::string> filenames;
+
+// Iterate over files in directory and add their names to the vector
+    for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
+        if (entry.is_regular_file()) {
+            filenames.push_back(entry.path().filename().string());
+        }
+    }
+
+// Sort filenames alphabetically
+    std::sort(filenames.begin(), filenames.end());
+
+// Create a combo box with the filenames
+    if (ImGui::BeginCombo("File", selectedFilename->c_str())) {
+        for (const auto& filename : filenames) {
+            bool isSelected = (*selectedFilename == filename);
+            if (ImGui::Selectable(filename.c_str(), isSelected)) {
+                *selectedFilename = filename;
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+
 }
 
 

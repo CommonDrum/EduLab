@@ -37,7 +37,8 @@ public:
     void highlight_object_click(b2Vec2 point);
     void move_highlighted_object(b2Vec2 point);
     json get_highlighted_stats();
-    void print_forces(ImDrawList *drawList);
+    void draw_forces(ImDrawList *drawList);
+    void draw_velocity(ImDrawList *drawList, Object2D *object);
 
     void attach_mouse_joint(b2Vec2 point);
     void detach_mouse_joint();
