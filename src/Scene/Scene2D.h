@@ -13,10 +13,19 @@ private:
     b2Body* body_{};
     ImVec4 color;
     b2Vec2 size;
+    bool showForces = false;
+    bool showVelocity = false;
 public:
     Object2D(b2Body* body, ImColor color, b2Vec2 size);
 
     // getter methods
+    void set_show_forces(bool show) { showForces = show; }
+    void set_show_velocity(bool show) { showVelocity = show; }
+
+    bool is_showing_forces() { return showForces; }
+    bool is_showing_velocity() { return showVelocity; }
+
+
     b2Body* get_body() { return body_; }
     ImVec4 get_color() { return color; }
     b2Vec2 get_size() { return size; }
@@ -25,6 +34,11 @@ public:
     static json get_stats();
     std::vector<b2Vec2> get_forces();
     b2Vec2 get_velocity();
+    void add_force(b2Vec2 force);
+    void change_density(float density);
+    float get_mass();
+    b2Vec2 get_position();
+
 
     void resize(b2Vec2 newSize)
 

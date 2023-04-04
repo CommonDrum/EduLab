@@ -6,6 +6,7 @@
 #define EDULAB_SCENE2DMANAGER_H
 #include "Scene2D.h"
 #include <cmath>
+#include "set"
 
 
 
@@ -13,9 +14,10 @@ class Scene2DManager {
 private:
     std::vector<Scene2D*> scenes_;
     Scene2D * current_scene_;
-    Scene2D * original_scene_;
     Object2D * highlighted_object_ = nullptr;
-    bool m_running = false;
+    std::set<Object2D*> display_forces_;
+    std::set<Object2D*> display_velocity_;
+    bool running_ = false;
 public:
 
     void create_scene(std::string name) ;
@@ -32,13 +34,21 @@ public:
     void DrawRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color, ImDrawList* drawList);
     void DrawCircle(const ImVec2 &position, float radius, float rotation, ImU32 color);
     void draw_arrow(const ImVec2 &position, const ImVec2 &size, ImU32 color, ImDrawList* drawList);
+    void draw_forces(ImDrawList *drawList, Object2D *object = nullptr);
+    void draw_velocity(ImDrawList *drawList, Object2D *object = nullptr);
 
     Object2D * object_at_point(b2Vec2 point);
     void highlight_object_click(b2Vec2 point);
+    Object2D * get_highlighted_object();
     void move_highlighted_object(b2Vec2 point);
-    json get_highlighted_stats();
-    void draw_forces(ImDrawList *drawList);
-    void draw_velocity(ImDrawList *drawList, Object2D *object);
+    void display_force(Object2D *object);
+    void display_velocity(Object2D *object);
+    void hide_force(Object2D *object);
+    void hide_velocity(Object2D *object);
+
+    void energy_as_color(Object2D *object);
+
+
 
     void attach_mouse_joint(b2Vec2 point);
     void detach_mouse_joint();

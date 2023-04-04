@@ -100,19 +100,26 @@ void GUI::menuBar(bool* done) {
 }
 
 void GUI::info() {
-    ImGui::Begin("File Explorer");
+    ImGui::Begin("Information");
 
 
     static float width = 1.0f;
     static float height = 1.0f;
     static float rotation = 0.0f;
+    if(m_scene2DManager->get_highlighted_object() != nullptr) {if (ImGui::Button("Show Force")){
+            m_scene2DManager->get_highlighted_object()->set_show_forces(true);
+        }
+        if (ImGui::Button("Hide Force")){
+            m_scene2DManager->get_highlighted_object()->set_show_forces(false);
+        }
+        if (ImGui::Button("Show Velocity")){
+            m_scene2DManager->get_highlighted_object()->set_show_velocity(true);
+        }
+        if (ImGui::Button("Hide Velocity")){
+            m_scene2DManager->get_highlighted_object()->set_show_velocity(false);
+        }
 
-    ImGui::InputFloat("Width", &width);
-    ImGui::InputFloat("Height", &height);
-    ImGui::InputFloat("Rotation", &rotation);
-    if (ImGui::Button("Change Rectangle")) {
-    //m_scene2DManager->resize_highlighted_object(b2Vec2(width, height));
-    m_scene2DManager->rotate_highlighted_object(rotation);
+
     }
 
 
@@ -259,7 +266,8 @@ void GUI::mainViewport() {
     // Draw ui of highlighted object
 
 
-    m_scene2DManager->draw_forces(draw_list);
+    m_scene2DManager->draw_forces(draw_list, nullptr);
+    m_scene2DManager->draw_velocity(draw_list);
     m_scene2DManager->draw_scene(draw_list);
 
 

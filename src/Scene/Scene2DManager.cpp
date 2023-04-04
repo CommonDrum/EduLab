@@ -156,7 +156,7 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
     if(current_scene_->get_objects().empty()) return;
     for (auto &item : current_scene_->get_objects()) {
 
-
+        energy_as_color(item);
         ImColor im_color = item->get_color();
         b2Body* body = item->get_body();
 
@@ -165,6 +165,7 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
         float angle = body->GetAngle();
         b2Shape* shape = body->GetFixtureList()->GetShape();
         b2Shape::Type shapeType = shape->GetType();
+
 
         // Declare variables
         float width = 0.0f;
@@ -199,6 +200,12 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
             
         }
 
+        if (item->is_showing_velocity()){
+            draw_velocity( draw_list,item);
+        }
+        if (item->is_showing_forces()){
+            draw_forces(draw_list, item);
+        }
     }
 }
 
@@ -328,35 +335,28 @@ void Scene2DManager::load_scene(std::string name) {
 
 }
 
-json Scene2DManager::get_highlighted_stats() {
-    json stats;
-    if (this->highlighted_object_ != nullptr){
-        return highlighted_object_->get_stats();
-    }
-    else{
-        return stats;
-    }
 
-}
 
-void Scene2DManager::draw_forces(ImDrawList * drawList) {
-    if(highlighted_object_ != nullptr) {
+void Scene2DManager::draw_forces(ImDrawList *drawList, Object2D *object) {
+    if(object == nullptr)
+        return;
+
         std::vector<b2Vec2> forces;
-        forces = highlighted_object_->get_forces();
+        forces = object->get_forces();
         // print the forces
         for (auto &force: forces) {
             if (force.Length() < 0.9) continue;
             force *= 0.1;
-            b2Vec2 position = highlighted_object_->get_body()->GetPosition();
+            b2Vec2 position = object->get_body()->GetPosition();
             b2Vec2 arrow_tip = (position + force);
 
             ImVec2 arrow_screen = this->world_to_screen(arrow_tip);
-            ImVec2 position_screen = this->world_to_screen(highlighted_object_->get_body()->GetPosition());
+            ImVec2 position_screen = this->world_to_screen(object->get_body()->GetPosition());
             ImU32 color = IM_COL32(255, 0, 0, 255);
             this->draw_arrow(position_screen, arrow_screen, color, drawList);
         }
     }
-}
+
 
 void Scene2DManager::draw_arrow(const ImVec2 &position, const ImVec2 &size, ImU32 color, ImDrawList *drawList) {
 
@@ -368,11 +368,70 @@ void Scene2DManager::draw_arrow(const ImVec2 &position, const ImVec2 &size, ImU3
     // calculate the angle of the line
     float angle = atan2(p1.y - p2.y, p1.x - p2.x);
     // starting point of the first line of the arrow head
-    ImVec2 p3 = ImVec2(p2.x + 10 * cos(angle + M_PI / 6), p2.y + 10 * sin(angle + M_PI / 6));
+    ImVec2 p3 = ImVec2(p2.x + 6 * cos(angle + M_PI / 6), p2.y + 6 * sin(angle + M_PI / 6));
     // starting point of the second line of the arrow head
-    ImVec2 p4 = ImVec2(p2.x + 10 * cos(angle - M_PI / 6), p2.y + 10 * sin(angle - M_PI / 6));
+    ImVec2 p4 = ImVec2(p2.x + 6 * cos(angle - M_PI / 6), p2.y + 6 * sin(angle - M_PI / 6));
     // draw triangle
     drawList->AddTriangleFilled(p2, p3, p4, color);
+}
+
+void Scene2DManager::draw_velocity(ImDrawList *drawList, Object2D *object) {
+    if(object == nullptr) return;
+
+    b2Vec2 velocity = object->get_velocity();
+    if (velocity.Length() < 0.9) return;
+
+
+    velocity *= 0.1;
+    b2Vec2 position = object->get_body()->GetPosition();
+    b2Vec2 arrow_tip = (position + velocity);
+
+    ImVec2 arrow_screen = this->world_to_screen(arrow_tip);
+    ImVec2 position_screen = this->world_to_screen(object->get_body()->GetPosition());
+    ImU32 color = IM_COL32(0, 255, 0, 255);
+    this->draw_arrow(position_screen, arrow_screen, color, drawList);
+
+}
+
+void Scene2DManager::display_force(Object2D *object) {
+    if (object == nullptr) return;
+    display_forces_.insert(object);
+
+}
+
+void Scene2DManager::display_velocity(Object2D *object) {
+    if (object == nullptr) return;
+    display_velocity_.insert(object);
+
+}
+
+void Scene2DManager::hide_force(Object2D *object) {
+    if (object == nullptr) return;
+    display_forces_.erase(object);
+}
+
+void Scene2DManager::hide_velocity(Object2D *object) {
+    if (object == nullptr) return;
+    display_velocity_.erase(object);
+
+}
+
+Object2D *Scene2DManager::get_highlighted_object() {
+    return highlighted_object_;
+}
+
+void Scene2DManager::energy_as_color(Object2D *object) {
+    if (object == nullptr) return;
+    float kinetic_energy = (object->get_velocity().Length()* object->get_velocity().Length()  * object->get_mass())/2;
+    float potential_energy = object->get_position().y * object->get_mass() * current_scene_->get_world()->GetGravity().y;
+
+    float total_energy = kinetic_energy + potential_energy;
+    ImVec4 color = ImVec4(0, 0, 0, 1);
+
+    color.x = (kinetic_energy / total_energy);
+    color.y = 1 - color.x;
+    object->set_color(color);
+
 }
 
 

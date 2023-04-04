@@ -36,6 +36,7 @@ enum class UI_State {
 class GUI {
 private:
 
+    Object2D* selectedObject = nullptr;
     const char* glsl_version;
     ImGuiIO m_io;
 

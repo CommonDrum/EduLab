@@ -140,6 +140,8 @@ void Scene2D::serialize(std::string filename) {
         object_data["friction"] = object->get_body()->GetFixtureList()->GetFriction();
         object_data["restitution"] = object->get_body()->GetFixtureList()->GetRestitution();
         object_data["color"] = {object->get_color().x, object->get_color().y, object->get_color().z, object->get_color().w};
+        object_data["showForces"] = object->is_showing_forces();
+        object_data["showVelocity"] = object->is_showing_velocity();
         j["objects"].push_back(object_data);
 }
     // Save serialized data to file
@@ -175,15 +177,18 @@ void Scene2D::deserialize(std::string filename) {
         ImVec4 color = {object["color"][0], object["color"][1], object["color"][2], object["color"][3]};
 
         if (object["shape"] == 2) {
-            CreateBox(object["position"][0], object["position"][1], object["size"][0], object["size"][1],
+          CreateBox(object["position"][0], object["position"][1], object["size"][0], object["size"][1],
                       (b2BodyType) object["type"], color, object["angle"],
                       object["density"], object["friction"], object["restitution"]);
+
         }
         else if(object["shape"] == 0){
             CreateCircle(object["position"][0], object["position"][1], object["size"][0],
                       (b2BodyType) object["type"], color, object["angle"],
                       object["density"], object["friction"], object["restitution"]);
         }
+        objects_.back()->set_show_forces(object["showForces"]);
+        objects_.back()->set_show_velocity(object["showVelocity"]);
     }
 
     // close file
@@ -297,9 +302,26 @@ std::vector<b2Vec2> Object2D::get_forces() {
 
 b2Vec2 Object2D::get_velocity() {
 
-
-
     return this->body_->GetLinearVelocity();
+}
+
+void Object2D::add_force(b2Vec2 force) {
+    this->body_->ApplyForceToCenter(force, true);
+
+}
+
+void Object2D::change_density(float density) {
+    this->body_->GetFixtureList()->SetDensity(density);
+    this->body_->ResetMassData();
+
+}
+
+float Object2D::get_mass() {
+    return this->body_->GetMass();
+}
+
+b2Vec2 Object2D::get_position() {
+    return this->body_->GetPosition();
 }
 
 
