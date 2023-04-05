@@ -120,7 +120,7 @@ int main(int, char**)
     while (!done)
 
     {
-        // Poll and handle events (inputs, window resize, etc.)
+        // Poll and handle events (inputs, window set_size, etc.)
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {

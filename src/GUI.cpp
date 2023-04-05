@@ -103,18 +103,65 @@ void GUI::info() {
     ImGui::Begin("Information");
 
 
-    static float width = 1.0f;
-    static float height = 1.0f;
-    static float rotation = 0.0f;
-    if(m_scene2DManager->get_highlighted_object() != nullptr) {if (ImGui::Button("Show Force")){
+
+    // unsafe and idiotic
+    if(m_scene2DManager->get_highlighted_object() != nullptr) {
+
+        static float width = 1.0f;
+        static float height = 1.0f;
+        float rotation = m_scene2DManager->get_highlighted_object()->get_angle();
+        ImVec4 color = m_scene2DManager->get_highlighted_object()->get_color();
+        ImGui::SetNextItemWidth(100);
+        if(ImGui::SliderFloat("Rotation", &rotation, 0.0f, 6.4f, "%.1f", 1.0f)){
+            m_scene2DManager->get_highlighted_object()->rotate(rotation);
+        }
+        ImGui::SameLine();
+        if(ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)){
+            m_scene2DManager->get_highlighted_object()->set_color(color);
+        }
+        float restitution = m_scene2DManager->get_highlighted_object()->get_restitution();
+        if(ImGui::SliderFloat("Restitution", &restitution, -1.0f, 8.0f, "%.1f", 1.0f)){
+            m_scene2DManager->get_highlighted_object()->set_restitution(restitution);
+        }
+        float density = m_scene2DManager->get_highlighted_object()->get_density();
+        if(ImGui::SliderFloat("Density", &density, 0.0f, 10.0f, "%.1f", 1.0f)){
+            m_scene2DManager->get_highlighted_object()->set_density(density);
+        }
+        float gravity = m_scene2DManager->get_current_scene()->get_world()->GetGravity().y;
+        ImGui::SetNextItemWidth(100);
+        if(ImGui::SliderFloat("Gravity", &gravity, -10.0f, 10.0f, "%.1f", 1.0f)){
+            m_scene2DManager->get_current_scene()->get_world()->SetGravity(b2Vec2(0.0f, gravity));
+        }
+        if(ImGui::Button("Set Gravity")){
+            m_scene2DManager->get_current_scene()->get_world()->SetGravity(b2Vec2(0.0f, gravity));
+        }
+
+
+        ImGui::SetNextItemWidth(100);
+        ImGui::InputFloat("Width", &width);
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(100);
+        ImGui::InputFloat("Height", &height);
+        ImGui::SetNextItemWidth(60);
+        if (ImGui::Button("Change Size")){
+            m_scene2DManager->get_highlighted_object()->set_size(b2Vec2(width, height));
+        }
+        ImGui::SetNextItemWidth(50);
+        if (ImGui::Button("Show Force")){
             m_scene2DManager->get_highlighted_object()->set_show_forces(true);
         }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(50);
         if (ImGui::Button("Hide Force")){
             m_scene2DManager->get_highlighted_object()->set_show_forces(false);
         }
+
+        ImGui::SetNextItemWidth(50);
         if (ImGui::Button("Show Velocity")){
             m_scene2DManager->get_highlighted_object()->set_show_velocity(true);
         }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(50);
         if (ImGui::Button("Hide Velocity")){
             m_scene2DManager->get_highlighted_object()->set_show_velocity(false);
         }

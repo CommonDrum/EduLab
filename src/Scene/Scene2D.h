@@ -27,20 +27,25 @@ public:
 
 
     b2Body* get_body() { return body_; }
+    float get_angle() { return body_->GetAngle(); }
     ImVec4 get_color() { return color; }
     b2Vec2 get_size() { return size; }
-    b2Vec2 set_size(b2Vec2 newSize) { size = newSize; }
+    float get_restitution() { return body_->GetFixtureList()->GetRestitution(); }
+    b2Vec2 update_size(b2Vec2 newSize) { size = newSize; }
     ImVec4 set_color(ImVec4 newColor);
     static json get_stats();
     std::vector<b2Vec2> get_forces();
     b2Vec2 get_velocity();
     void add_force(b2Vec2 force);
-    void change_density(float density);
+    void set_density(float density);
+    void set_friction(float friction);
+    void set_restitution(float restitution);
     float get_mass();
     b2Vec2 get_position();
+    float get_density();
 
 
-    void resize(b2Vec2 newSize)
+    void set_size(b2Vec2 newSize)
 
     {
         b2Body* oldBody = body_;
@@ -78,7 +83,7 @@ public:
             fixtureDef.friction = fixture->GetFriction();
             fixtureDef.restitution = fixture->GetRestitution();
             newBody->CreateFixture(&fixtureDef);
-            set_size(b2Vec2(newRadius, newRadius));
+            update_size(b2Vec2(newRadius, newRadius));
         }
         else if (fixture->GetType() == b2Shape::e_polygon)
         {
@@ -93,7 +98,7 @@ public:
             fixtureDef.friction = fixture->GetFriction();
             fixtureDef.restitution = fixture->GetRestitution();
             newBody->CreateFixture(&fixtureDef);
-            set_size(b2Vec2(newWidth, newHeight));
+            update_size(b2Vec2(newWidth, newHeight));
         }
     }
 

@@ -310,7 +310,7 @@ void Object2D::add_force(b2Vec2 force) {
 
 }
 
-void Object2D::change_density(float density) {
+void Object2D::set_density(float density) {
     this->body_->GetFixtureList()->SetDensity(density);
     this->body_->ResetMassData();
 
@@ -322,6 +322,15 @@ float Object2D::get_mass() {
 
 b2Vec2 Object2D::get_position() {
     return this->body_->GetPosition();
+}
+
+void Object2D::set_restitution(float restitution) {
+    this->body_->GetFixtureList()->SetRestitution(restitution);
+
+}
+
+float Object2D::get_density() {
+    return body_->GetFixtureList()->GetDensity();
 }
 
 

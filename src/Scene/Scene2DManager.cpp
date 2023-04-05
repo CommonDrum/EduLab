@@ -302,7 +302,7 @@ void Scene2DManager::move_mouse_joint(b2Vec2 point) {
 
 void Scene2DManager::resize_highlighted_object(b2Vec2 newSize) {
     if (this->highlighted_object_ != nullptr && !running){
-        highlighted_object_->resize(newSize);
+        highlighted_object_->set_size(newSize);
     }
 }
 
@@ -430,7 +430,18 @@ void Scene2DManager::energy_as_color(Object2D *object) {
 
     color.x = (kinetic_energy / total_energy);
     color.y = 1 - color.x;
-    object->set_color(color);
+    //object->set_color(color);
+
+}
+
+void Scene2DManager::edit_object(b2Vec2 position, b2Vec2 size, float angle, float density, ImVec4 color) {
+    if (highlighted_object_ != nullptr) {
+
+        highlighted_object_->update_size(size);
+        highlighted_object_->rotate(angle);
+        highlighted_object_->set_density(density);
+        highlighted_object_->set_color(color);
+    }
 
 }
 
