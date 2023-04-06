@@ -260,12 +260,7 @@ ImVec4 Object2D::set_color(ImVec4 newColor) {
 
 }
 
-json Object2D::get_stats() {
-    json j;
-    j["size"]= 1;
 
-    return j;
-}
 
 std::vector<b2Vec2> Object2D::get_forces() {
 
@@ -331,6 +326,15 @@ void Object2D::set_restitution(float restitution) {
 
 float Object2D::get_density() {
     return body_->GetFixtureList()->GetDensity();
+}
+
+int Object2D::get_shape() {
+    return body_->GetFixtureList()->GetShape()->GetType();
+}
+
+void Object2D::set_friction(float friction) {
+    this->body_->GetFixtureList()->SetFriction(friction);
+
 }
 
 

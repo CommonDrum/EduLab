@@ -308,7 +308,7 @@ void Scene2DManager::resize_highlighted_object(b2Vec2 newSize) {
 
 void Scene2DManager::rotate_highlighted_object(float angle) {
     if (this->highlighted_object_ != nullptr && !running){
-        highlighted_object_->rotate(angle);
+        highlighted_object_->set_angle(angle);
     }
 
 }
@@ -329,6 +329,7 @@ void Scene2DManager::save_scene(std::string name) {
 
 void Scene2DManager::load_scene(std::string name) {
     bool is_running = running;
+    highlighted_object_ = nullptr;
     running = false;
     current_scene_->deserialize(name);
     running = is_running;
@@ -438,7 +439,7 @@ void Scene2DManager::edit_object(b2Vec2 position, b2Vec2 size, float angle, floa
     if (highlighted_object_ != nullptr) {
 
         highlighted_object_->update_size(size);
-        highlighted_object_->rotate(angle);
+        highlighted_object_->set_angle(angle);
         highlighted_object_->set_density(density);
         highlighted_object_->set_color(color);
     }

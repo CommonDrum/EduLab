@@ -102,72 +102,12 @@ void GUI::menuBar(bool* done) {
 void GUI::info() {
     ImGui::Begin("Information");
 
+    std::string name = m_scene2DManager->get_current_scene()->get_name();
+    ImGui::Text("Scene Name: %s", name.c_str());
 
-
-    // unsafe and idiotic
-    if(m_scene2DManager->get_highlighted_object() != nullptr) {
-
-        static float width = 1.0f;
-        static float height = 1.0f;
-        float rotation = m_scene2DManager->get_highlighted_object()->get_angle();
-        ImVec4 color = m_scene2DManager->get_highlighted_object()->get_color();
-        ImGui::SetNextItemWidth(100);
-        if(ImGui::SliderFloat("Rotation", &rotation, 0.0f, 6.4f, "%.1f", 1.0f)){
-            m_scene2DManager->get_highlighted_object()->rotate(rotation);
-        }
-        ImGui::SameLine();
-        if(ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)){
-            m_scene2DManager->get_highlighted_object()->set_color(color);
-        }
-        float restitution = m_scene2DManager->get_highlighted_object()->get_restitution();
-        if(ImGui::SliderFloat("Restitution", &restitution, -1.0f, 8.0f, "%.1f", 1.0f)){
-            m_scene2DManager->get_highlighted_object()->set_restitution(restitution);
-        }
-        float density = m_scene2DManager->get_highlighted_object()->get_density();
-        if(ImGui::SliderFloat("Density", &density, 0.0f, 10.0f, "%.1f", 1.0f)){
-            m_scene2DManager->get_highlighted_object()->set_density(density);
-        }
-        float gravity = m_scene2DManager->get_current_scene()->get_world()->GetGravity().y;
-        ImGui::SetNextItemWidth(100);
-        if(ImGui::SliderFloat("Gravity", &gravity, -10.0f, 10.0f, "%.1f", 1.0f)){
-            m_scene2DManager->get_current_scene()->get_world()->SetGravity(b2Vec2(0.0f, gravity));
-        }
-        if(ImGui::Button("Set Gravity")){
-            m_scene2DManager->get_current_scene()->get_world()->SetGravity(b2Vec2(0.0f, gravity));
-        }
-
-
-        ImGui::SetNextItemWidth(100);
-        ImGui::InputFloat("Width", &width);
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(100);
-        ImGui::InputFloat("Height", &height);
-        ImGui::SetNextItemWidth(60);
-        if (ImGui::Button("Change Size")){
-            m_scene2DManager->get_highlighted_object()->set_size(b2Vec2(width, height));
-        }
-        ImGui::SetNextItemWidth(50);
-        if (ImGui::Button("Show Force")){
-            m_scene2DManager->get_highlighted_object()->set_show_forces(true);
-        }
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(50);
-        if (ImGui::Button("Hide Force")){
-            m_scene2DManager->get_highlighted_object()->set_show_forces(false);
-        }
-
-        ImGui::SetNextItemWidth(50);
-        if (ImGui::Button("Show Velocity")){
-            m_scene2DManager->get_highlighted_object()->set_show_velocity(true);
-        }
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(50);
-        if (ImGui::Button("Hide Velocity")){
-            m_scene2DManager->get_highlighted_object()->set_show_velocity(false);
-        }
-
-
-    }
+    std::vector<std::string> editor_options = { "rotation", "color", "density", "friction", "restitution","vectors","size"};
+    this->editor(&editor_options);
+    ImGui::SameLine();
 
 
     // Make sure you have a valid b2World pointer called 'world'
@@ -414,6 +354,147 @@ void GUI::file_explorer(std::string *selectedFilename) {
     }
 
 
+}
+
+void GUI::editor(std::vector<std::string> *options) {
+
+    // Editor interface for editing the highlighted object
+    // Displayed options are determined by the options vector
+
+
+    if(m_scene2DManager->get_highlighted_object() != nullptr) {
+
+
+        bool option_size = false;
+        bool option_density = false;
+        bool option_gravity = false;
+        bool option_rotation = false;
+        bool option_restitution = false;
+        bool option_color = false;
+        bool option_delete = false;
+        bool option_vectors = false;
+        bool option_friction = false;
+
+        for (auto &option : *options) {
+            if (option == "size") {
+                option_size = true;
+            }
+            if (option == "density") {
+                option_density = true;
+            }
+            if (option == "gravity") {
+                option_gravity = true;
+            }
+            if (option == "rotation") {
+                option_rotation = true;
+            }
+            if (option == "restitution") {
+                option_restitution = true;
+            }
+            if (option == "color") {
+                option_color = true;
+            }
+            if (option == "delete") {
+                option_delete = true;
+            }
+            if (option == "vectors") {
+                option_vectors = true;
+            }
+            if (option == "friction") {
+                option_friction = true;
+            }
+        }
+
+        b2Vec2 size = m_scene2DManager->get_highlighted_object()->get_size();
+        float density = m_scene2DManager->get_highlighted_object()->get_density();
+        float gravity = m_scene2DManager->get_current_scene()->get_world()->GetGravity().y;
+        float rotation = m_scene2DManager->get_highlighted_object()->get_angle();
+        float restitution = m_scene2DManager->get_highlighted_object()->get_restitution();
+        float friction = m_scene2DManager->get_highlighted_object()->get_friction();
+        ImVec4 color = m_scene2DManager->get_highlighted_object()->get_color();
+
+        if (option_rotation){
+            ImGui::SetNextItemWidth(100);
+            if(ImGui::SliderFloat("Rotation", &rotation, 0.0f, 6.4f, "%.1f", 1.0f)){
+                m_scene2DManager->get_highlighted_object()->set_angle(rotation);
+            }
+        }
+        if (option_color){
+            ImGui::SameLine();
+            if(ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)){
+                m_scene2DManager->get_highlighted_object()->set_color(color);
+            }
+        }
+
+        if (option_restitution){
+            ImGui::SetNextItemWidth(100);
+            if(ImGui::SliderFloat("Restitution", &restitution, -1.0f, 8.0f, "%.1f", 1.0f)){
+                m_scene2DManager->get_highlighted_object()->set_restitution(restitution);
+            }
+        }
+
+        if (option_size){
+            if (m_scene2DManager->get_highlighted_object()->get_shape() == 2){
+                ImGui::SetNextItemWidth(100);
+                if(ImGui::SliderFloat("Width", &size.x, 0.0f, 500.0f, "%.1f", 1.0f)){
+                    m_scene2DManager->get_highlighted_object()->set_size(size);
+                }
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(100);
+                if(ImGui::SliderFloat("Height", &size.y, 0.0f, 500.0f, "%.1f", 1.0f)){
+                    m_scene2DManager->get_highlighted_object()->set_size(size);
+                }
+            }
+            if (m_scene2DManager->get_highlighted_object()->get_shape() == 0){
+                ImGui::SetNextItemWidth(100);
+                if(ImGui::SliderFloat("Radius", &size.x, 0.0f, 500.0f, "%.1f", 1.0f)){
+                    m_scene2DManager->get_highlighted_object()->set_size(size);
+                }
+            }
+        }
+
+        if(option_density){
+            ImGui::SetNextItemWidth(100);
+            if(ImGui::SliderFloat("Density", &density, 0.0f, 10.0f, "%.1f", 1.0f)){
+                m_scene2DManager->get_highlighted_object()->set_density(density);
+            }
+        }
+        if (option_friction){
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(100);
+            if(ImGui::SliderFloat("Friction", &friction, 0.0f, 10.0f, "%.1f", 1.0f)){
+                m_scene2DManager->get_highlighted_object()->set_friction(density);
+            }
+        }
+
+        if(option_gravity){
+            ImGui::SetNextItemWidth(100);
+            if(ImGui::SliderFloat("Gravity", &gravity, -10.0f, 10.0f, "%.1f", 1.0f)){
+                m_scene2DManager->get_current_scene()->get_world()->SetGravity(b2Vec2(0.0f, gravity));
+            }
+        }
+
+
+        if(option_vectors){
+            ImGui::SetNextItemWidth(50);
+            if (ImGui::Button("Show Force")){
+                m_scene2DManager->get_highlighted_object()->set_show_forces(true);
+            }
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(50);
+            if (ImGui::Button("Hide Force")){
+                m_scene2DManager->get_highlighted_object()->set_show_forces(false);
+            }
+            ImGui::SetNextItemWidth(50);
+            if (ImGui::Button("Show Velocity")){
+                m_scene2DManager->get_highlighted_object()->set_show_velocity(true);
+            }
+            ImGui::SetNextItemWidth(50);
+            if (ImGui::Button("Hide Velocity")){
+                m_scene2DManager->get_highlighted_object()->set_show_velocity(false);
+            }
+        }
+    }
 }
 
 

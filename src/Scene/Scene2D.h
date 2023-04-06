@@ -26,94 +26,82 @@ public:
     bool is_showing_velocity() { return showVelocity; }
 
 
-    b2Body* get_body() { return body_; }
-    float get_angle() { return body_->GetAngle(); }
     ImVec4 get_color() { return color; }
-    b2Vec2 get_size() { return size; }
-    float get_restitution() { return body_->GetFixtureList()->GetRestitution(); }
-    b2Vec2 update_size(b2Vec2 newSize) { size = newSize; }
     ImVec4 set_color(ImVec4 newColor);
-    static json get_stats();
+
+    void add_force(b2Vec2 force);
+
+    float get_restitution() { return body_->GetFixtureList()->GetRestitution(); }
+    void set_restitution(float restitution);
+
+    b2Vec2 get_position();
     std::vector<b2Vec2> get_forces();
     b2Vec2 get_velocity();
-    void add_force(b2Vec2 force);
-    void set_density(float density);
-    void set_friction(float friction);
-    void set_restitution(float restitution);
+    b2Body* get_body() { return body_; }
+
     float get_mass();
-    b2Vec2 get_position();
     float get_density();
+    void set_density(float density);
 
 
+    float get_friction(){ return body_->GetFixtureList()->GetFriction();}
+    void set_friction(float friction);
+
+
+    b2Vec2 get_size() { return size; }
+    b2Vec2 update_size(b2Vec2 newSize) { size = newSize; }
+
+    int get_shape();
     void set_size(b2Vec2 newSize)
-
     {
-        b2Body* oldBody = body_;
-        b2World* world = oldBody->GetWorld();
-        float newWidth = newSize.x;
-        float newHeight = newSize.y;
-
-        // Store the old body's properties
-        b2Vec2 position = oldBody->GetPosition();
-        float angle = oldBody->GetAngle();
-        b2BodyType bodyType = oldBody->GetType();
-        b2Fixture* fixture = oldBody->GetFixtureList();
-
-        // Destroy the old body
-        world->DestroyBody(oldBody);
-
-        // Create a new body with the new size
+        // Copy all the necessary data
         b2BodyDef bodyDef;
-        bodyDef.type = bodyType;
-        bodyDef.position.Set(position.x, position.y);
-        bodyDef.angle = angle;
-        b2Body* newBody = world->CreateBody(&bodyDef);
+        bodyDef.type = body_->GetType();
+        bodyDef.position = body_->GetPosition();
+        bodyDef.angle = body_->GetAngle();
+        bodyDef.linearVelocity = body_->GetLinearVelocity();
+        bodyDef.angularVelocity = body_->GetAngularVelocity();
+        bodyDef.linearDamping = body_->GetLinearDamping();
+        bodyDef.angularDamping = body_->GetAngularDamping();
+        bodyDef.allowSleep = body_->IsSleepingAllowed();
+        bodyDef.awake = body_->IsAwake();
+        bodyDef.fixedRotation = body_->IsFixedRotation();
+        bodyDef.bullet = body_->IsBullet();
 
-        if (fixture->GetType() == b2Shape::e_circle)
-        {
-            // Create a new circle shape with the new radius
-            auto* circleShape = dynamic_cast<b2CircleShape*>(fixture->GetShape());
-            float newRadius = (newWidth); // average of new width and height
-            circleShape->m_radius = newRadius;
-
-            // Create a new fixture with the new circle shape
+        // Create a new body with the same properties depending on the shape
+        if (this->get_shape() == 0 ){ //circle
+            b2CircleShape circleShape;
+            circleShape.m_radius = newSize.x;
             b2FixtureDef fixtureDef;
-            fixtureDef.shape = circleShape;
-            fixtureDef.density = fixture->GetDensity();
-            fixtureDef.friction = fixture->GetFriction();
-            fixtureDef.restitution = fixture->GetRestitution();
+            fixtureDef.shape = &circleShape;
+            fixtureDef.density = body_->GetFixtureList()->GetDensity();
+            fixtureDef.friction = body_->GetFixtureList()->GetFriction();
+            fixtureDef.restitution = body_->GetFixtureList()->GetRestitution();
+            b2Body* newBody = body_->GetWorld()->CreateBody(&bodyDef);
             newBody->CreateFixture(&fixtureDef);
-            update_size(b2Vec2(newRadius, newRadius));
+            size = newSize;
+            body_->GetWorld()->DestroyBody(body_);
+            body_ = newBody;
         }
-        else if (fixture->GetType() == b2Shape::e_polygon)
-        {
-            // Create a new polygon shape with the new width and height
-            b2PolygonShape newShape;
-            newShape.SetAsBox(newWidth / 2.0f, newHeight / 2.0f);
-
-            // Create a new fixture with the new polygon shape
+        else if (this->get_shape() == 2) { //rectangle
+            b2PolygonShape polygonShape;
+            polygonShape.SetAsBox(newSize.x, newSize.y);
             b2FixtureDef fixtureDef;
-            fixtureDef.shape = &newShape;
-            fixtureDef.density = fixture->GetDensity();
-            fixtureDef.friction = fixture->GetFriction();
-            fixtureDef.restitution = fixture->GetRestitution();
+            fixtureDef.shape = &polygonShape;
+            fixtureDef.density = body_->GetFixtureList()->GetDensity();
+            fixtureDef.friction = body_->GetFixtureList()->GetFriction();
+            fixtureDef.restitution = body_->GetFixtureList()->GetRestitution();
+            b2Body* newBody = body_->GetWorld()->CreateBody(&bodyDef);
             newBody->CreateFixture(&fixtureDef);
-            update_size(b2Vec2(newWidth, newHeight));
+            size = newSize;
+            body_->GetWorld()->DestroyBody(body_);
+            body_ = newBody;
         }
     }
 
-    void changeAttributes(b2Body* body, float newFriction, float newDensity, float newRestitution)
-    {
-        // Get the body's fixture list
-        b2Fixture* fixture = body->GetFixtureList();
 
-        // Get the body's current properties
-
-        fixture->SetFriction(newFriction);
-        fixture->SetDensity(newDensity);
-        fixture->SetRestitution(newRestitution);
-    }
-    void rotate(float angle) {
+    float get_angle() { return body_->GetAngle(); }
+    void set_angle(float angle) {
         body_->SetTransform(body_->GetPosition(), angle);
     }
 };

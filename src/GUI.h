@@ -51,6 +51,7 @@ public:
     void play(bool *done);
     explicit GUI(Scene2DManager* scene2DManager);
     void tools();
+    void editor(std::vector<std::string> * options);
     void info();
     void file_explorer(std::string *selectedFilename);
     void menuBar(bool *done);
