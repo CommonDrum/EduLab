@@ -8,6 +8,9 @@
 #include "core.h"
 
 
+
+
+
 class Object2D {
 private:
     b2Body* body_{};
@@ -15,8 +18,9 @@ private:
     b2Vec2 size;
     bool showForces = false;
     bool showVelocity = false;
+    std::string ID;
 public:
-    Object2D(b2Body* body, ImColor color, b2Vec2 size);
+    Object2D(b2Body* body, ImColor color, b2Vec2 size, std::string ID = "");
 
     // getter methods
     void set_show_forces(bool show) { showForces = show; }
@@ -25,6 +29,8 @@ public:
     bool is_showing_forces() { return showForces; }
     bool is_showing_velocity() { return showVelocity; }
 
+    std::string get_id() { return ID; }
+    std::string set_id(std::string newID) { ID = newID; return ID; }
 
     ImVec4 get_color() { return color; }
     ImVec4 set_color(ImVec4 newColor);
@@ -49,7 +55,7 @@ public:
 
 
     b2Vec2 get_size() { return size; }
-    b2Vec2 update_size(b2Vec2 newSize) { size = newSize; }
+    b2Vec2 update_size(b2Vec2 newSize) {  size = newSize; return size;}
 
     int get_shape();
     void set_size(b2Vec2 newSize)
@@ -144,7 +150,7 @@ public:
     void MouseUp();
     void MouseMove(const b2Vec2 &p);
 
-    void add_object(b2Body* body, ImVec4 color, b2Vec2 size);
+    Object2D * add_object(b2Body* body, ImVec4 color, b2Vec2 size);
     void delete_object(b2Body* body);
 
 
@@ -164,12 +170,13 @@ private:
     std::string name_;
 
 
-    void * CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle,
-              float density,
-              float friction, float restitution);
+    Object2D *CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle,
+                        float density,
+                        float friction, float restitution, b2Vec2 velocity = b2Vec2(0, 0));
 
-    b2Body *CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle, float density,
-                         float friction, float restitution);
+    Object2D *
+    CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle, float density,
+                 float friction, float restitution, b2Vec2 velocity = b2Vec2(0, 0));
 };
 
 

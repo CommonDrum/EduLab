@@ -4,6 +4,40 @@
 
 #include "Scene2D.h"
 
+std::string edulab_uuid_v4() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 255);
+
+    std::stringstream ss;
+    int i;
+    ss << std::hex;
+    for (i = 0; i < 4; ++i) {
+        ss << std::setw(2) << std::setfill('0') << dis(gen);
+    }
+    ss << "-";
+    for (i = 0; i < 2; ++i) {
+        ss << std::setw(2) << std::setfill('0') << dis(gen);
+    }
+    ss << "-4";
+    for (i = 0; i < 1; ++i) {
+        ss << std::setw(2) << std::setfill('0') << dis(gen);
+    }
+    ss << "-a";
+    for (i = 0; i < 1; ++i) {
+        ss << std::setw(2) << std::setfill('0') << dis(gen) % 16;
+    }
+    for (i = 0; i < 1; ++i) {
+        ss << std::setw(2) << std::setfill('0') << dis(gen);
+    }
+    ss << "-";
+    for (i = 0; i < 6; ++i) {
+        ss << std::setw(2) << std::setfill('0') << dis(gen);
+    }
+
+    return ss.str();
+}
+
 
 
 class QueryCallback : public b2QueryCallback
@@ -47,11 +81,10 @@ Scene2D::Scene2D(std::string name) {
 
 }
 
-void Scene2D::add_object(b2Body *body, ImVec4 color, b2Vec2 size) {
+Object2D * Scene2D::add_object(b2Body *body, ImVec4 color, b2Vec2 size) {
     auto* object = new Object2D(body, color, size);
-
-
     objects_.push_back(object);
+    return object;
 }
 
 void Scene2D::delete_object(b2Body *body) {
@@ -142,6 +175,8 @@ void Scene2D::serialize(std::string filename) {
         object_data["color"] = {object->get_color().x, object->get_color().y, object->get_color().z, object->get_color().w};
         object_data["showForces"] = object->is_showing_forces();
         object_data["showVelocity"] = object->is_showing_velocity();
+        object_data["velocity"] = {object->get_velocity().x, object->get_velocity().y};
+        object_data["ID"] = object->get_id();
         j["objects"].push_back(object_data);
 }
     // Save serialized data to file
@@ -175,17 +210,23 @@ void Scene2D::deserialize(std::string filename) {
     // Create objects
     for (auto object : j["objects"]) {
         ImVec4 color = {object["color"][0], object["color"][1], object["color"][2], object["color"][3]};
-
+        Object2D *obj = nullptr;
+        b2Vec2 velocity = b2Vec2(object["velocity"][0], object["velocity"][1]);
+        // TODO: Maybe later merge into one function
         if (object["shape"] == 2) {
-          CreateBox(object["position"][0], object["position"][1], object["size"][0], object["size"][1],
-                      (b2BodyType) object["type"], color, object["angle"],
-                      object["density"], object["friction"], object["restitution"]);
+
+          obj = CreateBox(object["position"][0], object["position"][1], object["size"][0], object["size"][1],
+                          (b2BodyType) object["type"], color, object["angle"],
+                          object["density"], object["friction"], object["restitution"], velocity );
+          obj->set_id(object["ID"]);
+
 
         }
         else if(object["shape"] == 0){
-            CreateCircle(object["position"][0], object["position"][1], object["size"][0],
-                      (b2BodyType) object["type"], color, object["angle"],
-                      object["density"], object["friction"], object["restitution"]);
+            obj = CreateCircle(object["position"][0], object["position"][1], object["size"][0],
+                               (b2BodyType) object["type"], color, object["angle"],
+                               object["density"], object["friction"], object["restitution"], velocity);
+            obj->set_id(object["ID"]);
         }
         objects_.back()->set_show_forces(object["showForces"]);
         objects_.back()->set_show_velocity(object["showVelocity"]);
@@ -197,13 +238,14 @@ void Scene2D::deserialize(std::string filename) {
 
 }
 
-void * Scene2D::CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color,
-                                 float angle,
-                                 float density, float friction, float restitution) {
+Object2D * Scene2D::CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color,
+                              float angle, float density,
+                              float friction, float restitution, b2Vec2 velocity) {
     b2BodyDef bodyDef;
     bodyDef.position.Set(x, y);
     bodyDef.type = bodyType;
     bodyDef.angle = angle;
+    bodyDef.linearVelocity = velocity;
 
     b2PolygonShape shape;
     shape.SetAsBox(width / 2.0f, height / 2.0f);
@@ -217,18 +259,20 @@ void * Scene2D::CreateBox(float x, float y, float width, float height, b2BodyTyp
     b2Body* body = world_->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
 
-    add_object(body, color, b2Vec2(width, height));
+    Object2D * object = add_object(body, color, b2Vec2(width, height));
 
     // return the pair
-    return body;
+    return object;
 }
 
-b2Body * Scene2D::CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle,
-                                      float density, float friction, float restitution) {
+Object2D * Scene2D::CreateCircle(float x, float y, float radius, b2BodyType bodyType, ImVec4 color, float angle,
+                                 float density,
+                                 float friction, float restitution, b2Vec2 velocity) {
     b2BodyDef bodyDef;
     bodyDef.position.Set(x, y);
     bodyDef.type = bodyType;
     bodyDef.angle = angle;
+    bodyDef.linearVelocity = velocity;
 
     b2CircleShape shape;
     shape.m_radius = radius;
@@ -242,12 +286,18 @@ b2Body * Scene2D::CreateCircle(float x, float y, float radius, b2BodyType bodyTy
     b2Body* body = world_->CreateBody(&bodyDef);
     body->CreateFixture(&fixtureDef);
 
-    add_object(body, color, b2Vec2(radius, radius));
+    Object2D* object = add_object(body, color, b2Vec2(radius, radius));
 
-    return body;
+    return object;
 }
 
-Object2D::Object2D(b2Body *body, ImColor color, b2Vec2 size) { // because i will probably need body to store more inforamtion  like forces etc
+Object2D::Object2D(b2Body *body, ImColor color, b2Vec2 size, std::string ID) { // because i will probably need body to store more inforamtion  like forces etc
+    if (ID == "") {
+        this->ID = edulab_uuid_v4();
+    }
+    else {
+        this->ID = ID;
+    }
     this->body_ = body;
     this->color = color;
     this->size = size;
