@@ -43,6 +43,7 @@ private:
     Scene2DManager* m_scene2DManager;
     float delta_time = 1.0f / ImGui::GetIO().Framerate;
     bool clicked = false;
+    bool show_object_properties = false;
 
 
 public:
@@ -52,6 +53,7 @@ public:
     explicit GUI(Scene2DManager* scene2DManager);
     void tools();
     void editor(std::vector<std::string> * options);
+    void object_properties_popup();
     void info();
     void file_explorer(std::string *selectedFilename);
     void menuBar(bool *done);

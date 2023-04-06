@@ -150,8 +150,6 @@ void GUI::tools() {
     ImGui::Combo("Body Type", &bodyTypeIdx, bodyTypes, IM_ARRAYSIZE(bodyTypes));
 
 
-    ImGui::InputFloat("X", &x);
-    ImGui::InputFloat("Y", &y);
     ImGui::SliderFloat("Rotation", &rotation, -1.f, 1.f);
     ImGui::InputFloat("Density", &density);
     ImGui::InputFloat("Friction", &friction);
@@ -187,13 +185,9 @@ void GUI::mainViewport() {
 
 
     Camera * cam = m_scene2DManager->get_current_scene()->get_camera();
-
     ImVec2 center = windowCenter();
 
     cam->sUpdate(center.x, center.y); // Update the camera based on ImGui IO within the ImGui window
-
-
-
 
     // User Input
     if (ImGui::IsWindowHovered()) {
@@ -218,28 +212,42 @@ void GUI::mainViewport() {
             cam->zoom = 0.1f;
         }
 
-        // Body Movement
+
+
+        b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+        if (ImGui::IsMouseDragging(1)) {
+            cam->x -= ImGui::GetIO().MouseDelta.x;
+            cam->y += ImGui::GetIO().MouseDelta.y;
+        }
+        if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) != nullptr) {
+            m_scene2DManager->highlight_object_click(mousePos);
+            this->show_object_properties = true;
+        }
+        if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) == nullptr) {
+            m_scene2DManager->highlight_object_click(mousePos);
+            this->show_object_properties = false;
+        }
+        if (this->show_object_properties) {
+            this->object_properties_popup();
+        }
+
+
         if (ImGui::IsMouseClicked(0) && !m_scene2DManager->running) {
-            b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
             m_scene2DManager->highlight_object_click(mousePos);
             clicked = true;
         }
         else if(ImGui::IsMouseClicked(0) && m_scene2DManager->running) {
-            b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
             m_scene2DManager->attach_mouse_joint(mousePos);
             clicked = true;
         }
 
         if (clicked && ImGui::IsMouseDragging(0) &&  !m_scene2DManager->running) // Check if dragging
             {
-                b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
                 m_scene2DManager->move_highlighted_object(mousePos);
             }
         else if (clicked &&  ImGui::IsMouseDragging(0) && m_scene2DManager->running) // Check if dragging
             {
-                b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
                 m_scene2DManager->move_mouse_joint(mousePos);
-                std::cout << "Dragging" << std::endl;
             }
 
         else if (ImGui::IsMouseReleased(0)) {
@@ -494,6 +502,20 @@ void GUI::editor(std::vector<std::string> *options) {
                 m_scene2DManager->get_highlighted_object()->set_show_velocity(false);
             }
         }
+    }
+}
+
+void GUI::object_properties_popup() {
+    if (m_scene2DManager->get_highlighted_object() == nullptr) return;
+
+    if (ImGui::BeginPopupModal("Name Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Position: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_position().x, m_scene2DManager->get_highlighted_object()->get_position().y);
+        ImGui::Text("Velocity: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_velocity().x, m_scene2DManager->get_highlighted_object()->get_velocity().y);
+        ImGui::Text("Mass: %.1f", m_scene2DManager->get_highlighted_object()->get_mass());
+        if (ImGui::Button("OK", ImVec2(120, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
     }
 }
 
