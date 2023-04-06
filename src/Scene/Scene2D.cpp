@@ -388,4 +388,26 @@ void Object2D::set_friction(float friction) {
 }
 
 
+Connection2D::Connection2D(int type, Object2D *object1, Object2D *object2, b2Vec2 point1, b2Vec2 point2) {
 
+    if (type == 1){
+        b2RevoluteJointDef jointDef;
+    } else if(type == 2){
+        b2DistanceJointDef jointDef;
+    }else if(type == 3){
+        b2PrismaticJointDef jointDef;
+    }else if(type == 4){
+        b2PulleyJointDef jointDef;
+    }else if(type == 5){
+        b2GearJointDef jointDef;
+    }else if(type == 6){
+        b2WheelJointDef jointDef;
+        jointDef.localAnchorA = object1->get_body()->GetLocalPoint(point1);
+        jointDef.localAnchorB = object2->get_body()->GetLocalPoint(point2);
+        joint_ = object1->get_body()->GetWorld()->CreateJoint(&jointDef);
+    }else if(type == 7){
+        b2WeldJointDef jointDef;
+    }
+
+
+}

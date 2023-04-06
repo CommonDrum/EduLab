@@ -135,6 +135,21 @@ struct Camera {
         std::cout << "Camera zoom level: " << zoom << std::endl;
     }
 };
+// Gets two objects, two sets of coordinates and a type of connection
+// Creates a connection between the two objects
+class Connection2D {
+private:
+    b2Joint* joint_;
+    std::string ID_1;
+    std::string ID_2;
+public:
+    Connection2D(int type, Object2D* object1, Object2D* object2, b2Vec2 point1, b2Vec2 point2);
+
+    // getter methods
+    b2Joint* get_joint() { return joint_; }
+    std::string get_ID_1() { return ID_1; }
+    std::string get_ID_2() { return ID_2; }
+};
 
 class Scene2D {
 public:
