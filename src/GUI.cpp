@@ -183,6 +183,18 @@ void GUI::mainViewport() {
 
     ImGui::Begin("ImGui SDL Triangle",NULL,ImGuiWindowFlags_NoScrollWithMouse);
 
+    if (ImGui::BeginPopup("Name Popup", NULL)) {
+        ImGui::Text("Position: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_position().x,
+                    m_scene2DManager->get_highlighted_object()->get_position().y);
+        ImGui::Text("Velocity: (%.1f)", m_scene2DManager->get_highlighted_object()->get_velocity().Length());
+        ImGui::Text("Mass: %.1f", m_scene2DManager->get_highlighted_object()->get_mass());
+        if (ImGui::Button("OK", ImVec2(120, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+
 
     Camera * cam = m_scene2DManager->get_current_scene()->get_camera();
     ImVec2 center = windowCenter();
@@ -220,16 +232,17 @@ void GUI::mainViewport() {
             cam->y += ImGui::GetIO().MouseDelta.y;
         }
         if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) != nullptr) {
-            m_scene2DManager->highlight_object_click(mousePos);
             this->show_object_properties = true;
+
         }
         if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) == nullptr) {
-            m_scene2DManager->highlight_object_click(mousePos);
             this->show_object_properties = false;
         }
-        if (this->show_object_properties) {
-            this->object_properties_popup();
+
+        if(this->show_object_properties) {
+            ImGui::OpenPopup("Name Popup");
         }
+
 
 
         if (ImGui::IsMouseClicked(0) && !m_scene2DManager->running) {
@@ -508,7 +521,7 @@ void GUI::editor(std::vector<std::string> *options) {
 void GUI::object_properties_popup() {
     if (m_scene2DManager->get_highlighted_object() == nullptr) return;
 
-    if (ImGui::BeginPopupModal("Name Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopup("Name Popup", NULL)) {
         ImGui::Text("Position: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_position().x, m_scene2DManager->get_highlighted_object()->get_position().y);
         ImGui::Text("Velocity: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_velocity().x, m_scene2DManager->get_highlighted_object()->get_velocity().y);
         ImGui::Text("Mass: %.1f", m_scene2DManager->get_highlighted_object()->get_mass());
@@ -517,6 +530,7 @@ void GUI::object_properties_popup() {
         }
         ImGui::EndPopup();
     }
+    ImGui::OpenPopup("Name Popup");
 }
 
 
