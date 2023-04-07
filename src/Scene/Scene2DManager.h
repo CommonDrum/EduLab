@@ -47,6 +47,8 @@ public:
     void hide_velocity(Object2D *object);
     void edit_object(b2Vec2 position, b2Vec2 size, float angle, float density, ImVec4 color);
 
+    void apply_force(b2Vec2 pos, b2Vec2 force);
+
     void energy_as_color(Object2D *object);
     void connect(ImVec2 pos1, ImVec2 pos2, int type);
 

@@ -474,6 +474,11 @@ void Scene2DManager::draw_grid(ImDrawList *pList) {
 
 }
 
+void Scene2DManager::apply_force(b2Vec2 pos, b2Vec2 force) {
+    Object2D * object = object_at_point(pos);
+    object->add_force(force);
+}
+
 
 
 

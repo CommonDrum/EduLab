@@ -122,6 +122,7 @@ void GUI::info() {
 
 void GUI::tools() {
     joint_creation();
+    force_application();
 
     ImGui::Begin("Body Creator");
 
@@ -220,20 +221,18 @@ void GUI::mainViewport() {
             cam->zoom = 0.1f;
         }
 
-
-
+        // Drag Navigation
         b2Vec2 mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
         if (ImGui::IsMouseDragging(1)) {
             cam->x -= ImGui::GetIO().MouseDelta.x;
             cam->y += ImGui::GetIO().MouseDelta.y;
         }
+
+
         b2Vec2  object_pos(0,0);
         if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) != nullptr) {
             this->show_object_properties = true;
             object_pos = m_scene2DManager->object_at_point(mousePos)->get_body()->GetPosition();
-
-
-
         }
         if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) == nullptr) {
             this->show_object_properties = false;
@@ -244,9 +243,15 @@ void GUI::mainViewport() {
             object_properties_popup(m_scene2DManager->world_to_screen(object_pos));
         }
 
+        if (ImGui::IsMouseDragging(0) && enable_force_application){
+            mousePos = m_scene2DManager->screen_to_world(ImGui::GetMousePos());
+            m_scene2DManager->draw_arrow(ImGui::GetMousePos(),ImGui::GetMouseDragDelta(0),ImU32{},ImGui::GetWindowDrawList());
+            if(ImGui::IsMouseReleased(0)){
+                m_scene2DManager->apply_force(mousePos,m_scene2DManager->screen_to_world(ImGui::GetMouseDragDelta(0)));
+            }
+        }
 
-
-        if (ImGui::IsMouseClicked(0) && !m_scene2DManager->running) {
+        else if (ImGui::IsMouseClicked(0) && !m_scene2DManager->running) {
             m_scene2DManager->highlight_object_click(mousePos);
             clicked = true;
         }
@@ -263,6 +268,9 @@ void GUI::mainViewport() {
             {
                 m_scene2DManager->move_mouse_joint(mousePos);
             }
+
+
+
 
         else if (ImGui::IsMouseReleased(0)) {
             clicked = false;
@@ -568,6 +576,16 @@ void GUI::joint_creation() {
         joint_creation_type = 1;
     }
     ImGui::End();
+}
+
+void GUI::force_application() {
+    ImGui::Begin("Forces");
+    if(ImGui::Button("Enable/Disable force application")){
+        enable_force_application = !enable_force_application;
+    }
+    ImGui::End();
+
+
 }
 
 

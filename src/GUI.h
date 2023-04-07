@@ -48,8 +48,11 @@ private:
     int joint_creation_type = 0;
     int clicks = 0;
     bool show_grid = true;
+    bool editor_mode = true;
     ImVec2 pos1 = ImVec2(0,0);
     ImVec2 pos2 = ImVec2(0,0);
+    bool enable_force_application = false;
+
 
 
 public:
@@ -65,6 +68,7 @@ public:
     void menuBar(bool *done);
     ImVec2 windowCenter();
     void joint_creation();
+    void force_application();
 
     void mainViewport();
 
