@@ -19,6 +19,7 @@ private:
     bool showForces = false;
     bool showVelocity = false;
     std::string ID;
+
 public:
     Object2D(b2Body* body, ImColor color, b2Vec2 size, std::string ID = "");
 
@@ -139,16 +140,19 @@ struct Camera {
 // Creates a connection between the two objects
 class Connection2D {
 private:
-    b2Joint* joint_;
-    std::string ID_1;
-    std::string ID_2;
+    b2Joint* joint_ = nullptr;
+    int type = 0;
+    std::string ID_1 = "";
+    std::string ID_2 = "";
 public:
-    Connection2D(int type, Object2D* object1, Object2D* object2, b2Vec2 point1, b2Vec2 point2);
+    Connection2D(int type, Object2D *object1, Object2D *object2, b2Vec2 point1 = b2Vec2(0,0), b2Vec2 point2 = b2Vec2(0,0));
+    ~Connection2D();
 
     // getter methods
     b2Joint* get_joint() { return joint_; }
     std::string get_ID_1() { return ID_1; }
     std::string get_ID_2() { return ID_2; }
+    int get_type() { return type; }
 };
 
 class Scene2D {
@@ -158,8 +162,10 @@ public:
     // getter methods
     b2World* get_world() { return world_; }
     std::vector<Object2D*>& get_objects() { return objects_; }
+    Object2D* get_object(std::string ID);
     Camera* get_camera() { return &camera_; }
     [[nodiscard]] const std::string& get_name() const { return name_; }
+
 
     void MouseDown(const b2Vec2 &p);
     void MouseUp();
@@ -172,6 +178,7 @@ public:
     void serialize(std::string filename);
     void deserialize(std::string filename);
 
+    void connect_objects(Object2D* object1, Object2D* object2, int type, b2Vec2 point1, b2Vec2 point2);
 
 
 private:
@@ -181,6 +188,7 @@ private:
     b2Body* groundBody_;
     b2MouseJoint* mouseJoint_ = NULL;
     b2Vec2 mouseWorld_;
+    std::vector<Connection2D*> connections;
 
     std::string name_;
 

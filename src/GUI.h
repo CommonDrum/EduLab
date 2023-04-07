@@ -44,6 +44,12 @@ private:
     float delta_time = 1.0f / ImGui::GetIO().Framerate;
     bool clicked = false;
     bool show_object_properties = false;
+    bool joint_creation_enabled = false;
+    int joint_creation_type = 0;
+    int clicks = 0;
+    bool show_grid = true;
+    ImVec2 pos1 = ImVec2(0,0);
+    ImVec2 pos2 = ImVec2(0,0);
 
 
 public:
@@ -58,10 +64,13 @@ public:
     void file_explorer(std::string *selectedFilename);
     void menuBar(bool *done);
     ImVec2 windowCenter();
+    void joint_creation();
 
     void mainViewport();
 
     void main_menu(UI_State *pBoolean);
+
+    void object_properties_popup(ImVec2 pos);
 };
 
 

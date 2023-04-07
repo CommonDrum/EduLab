@@ -48,6 +48,7 @@ public:
     void edit_object(b2Vec2 position, b2Vec2 size, float angle, float density, ImVec4 color);
 
     void energy_as_color(Object2D *object);
+    void connect(ImVec2 pos1, ImVec2 pos2, int type);
 
 
 
@@ -72,6 +73,7 @@ public:
     static void DrawFilledRectangle(const ImVec2 &position, const ImVec2 &size, float rotation, ImU32 color);
 
 
+    void draw_grid(ImDrawList *pList);
 };
 
 

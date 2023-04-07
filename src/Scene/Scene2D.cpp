@@ -152,7 +152,7 @@ void Scene2D::MouseUp() {
     }
 }
 
-// TODO: ADD VELOCITY TO DESERIALIZER
+
 void Scene2D::serialize(std::string filename) {
     json j;
     j["name"] = name_;
@@ -179,6 +179,13 @@ void Scene2D::serialize(std::string filename) {
         object_data["ID"] = object->get_id();
         j["objects"].push_back(object_data);
 }
+    for (auto connection : connections) {
+        json connection_data;
+        connection_data["object1"] = connection->get_ID_1();
+        connection_data["object2"] = connection->get_ID_2();
+        connection_data["type"] = connection->get_type();
+        j["connections"].push_back(connection_data);
+    }
     // Save serialized data to file
     std::ofstream file(filename);
     file << j.dump(4);
@@ -187,6 +194,14 @@ void Scene2D::serialize(std::string filename) {
 
 void Scene2D::deserialize(std::string filename) {
     // Clear existing data
+    // Objects must be deleted after the joints are deleted
+
+    for (int i = 0; i < connections.size(); i++) {
+        Connection2D* connection = connections[i];
+        delete connection;
+    }
+    connections.clear();
+
     for (int i = 0; i < objects_.size(); i++) {
         Object2D* object = objects_[i];
         world_->DestroyBody(object->get_body());
@@ -231,11 +246,23 @@ void Scene2D::deserialize(std::string filename) {
         objects_.back()->set_show_forces(object["showForces"]);
         objects_.back()->set_show_velocity(object["showVelocity"]);
     }
+    // Create connections between objects
+    for (auto object : j["connections"]) {
+        Object2D* object1 = get_object(object["object1"]);
+        Object2D* object2 = get_object(object["object2"]);
+        if (object1 != nullptr && object2 != nullptr) {
+            Connection2D* connection = new Connection2D(object["type"],object1, object2);
+            connections.push_back(connection);
+        }
+        else {
+            std::cout << "Error: Could not find object with ID " << object["object1"] << " or " << object["object2"] << std::endl;
+        }
+
 
     // close file
     file.close();
 
-
+}
 }
 
 Object2D * Scene2D::CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color,
@@ -289,6 +316,21 @@ Object2D * Scene2D::CreateCircle(float x, float y, float radius, b2BodyType body
     Object2D* object = add_object(body, color, b2Vec2(radius, radius));
 
     return object;
+}
+
+void Scene2D::connect_objects(Object2D *object1, Object2D *object2, int type, b2Vec2 point1, b2Vec2 point2) {
+    Connection2D *connection = new Connection2D(type, object1, object2);
+    connections.push_back(connection);
+
+}
+
+Object2D *Scene2D::get_object(std::string ID) {
+    for (auto object : objects_) {
+        if (object->get_id() == ID) {
+            return object;
+        }
+    }
+    return nullptr;
 }
 
 Object2D::Object2D(b2Body *body, ImColor color, b2Vec2 size, std::string ID) { // because i will probably need body to store more inforamtion  like forces etc
@@ -390,8 +432,21 @@ void Object2D::set_friction(float friction) {
 
 Connection2D::Connection2D(int type, Object2D *object1, Object2D *object2, b2Vec2 point1, b2Vec2 point2) {
 
+    this->type = type;
+    ID_1 = object1->get_id();
+    ID_2 = object2->get_id();
+
     if (type == 1){
         b2RevoluteJointDef jointDef;
+        b2Body* body1 = object1->get_body();
+        b2Body* body2 = object2->get_body();
+        jointDef.bodyA = body1;
+        jointDef.bodyB = body2;
+        b2Vec2 anchorPoint = body1->GetWorldCenter();
+        jointDef.localAnchorA = body1->GetLocalPoint(anchorPoint);
+        jointDef.localAnchorB = body2->GetLocalPoint(anchorPoint);
+        joint_ = body1->GetWorld()->CreateJoint(&jointDef);
+
     } else if(type == 2){
         b2DistanceJointDef jointDef;
     }else if(type == 3){
@@ -408,6 +463,12 @@ Connection2D::Connection2D(int type, Object2D *object1, Object2D *object2, b2Vec
     }else if(type == 7){
         b2WeldJointDef jointDef;
     }
+
+
+}
+
+Connection2D::~Connection2D() {
+    this->joint_->GetBodyA()->GetWorld()->DestroyJoint(this->joint_);
 
 
 }

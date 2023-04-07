@@ -446,6 +446,34 @@ void Scene2DManager::edit_object(b2Vec2 position, b2Vec2 size, float angle, floa
 
 }
 
+void Scene2DManager::connect(ImVec2 pos1, ImVec2 pos2, int type) {
+    b2Vec2 world_pos1 = screen_to_world(pos1);
+    b2Vec2  world_pos2 = screen_to_world(pos2);
+    Object2D *obj1 = this->object_at_point(world_pos1);
+    Object2D *obj2 = this->object_at_point(world_pos2);
+    if (obj1 == nullptr || obj2 == nullptr) return;
+    if (obj1 == obj2) return;
+    current_scene_->connect_objects(obj1, obj2, type , world_pos1, world_pos2);
+
+}
+
+void Scene2DManager::draw_grid(ImDrawList *pList) {
+    float density = 4.0f;
+    float range[2] = {-100, 100};
+    for (float x = range[0]; x < range[1]; x += density) {
+        // draw vertical line
+        ImVec2 p1 = this->world_to_screen(b2Vec2(x, range[0]));
+        ImVec2 p2 = this->world_to_screen(b2Vec2(x, range[1]));
+        pList->AddLine(p1, p2, IM_COL32(150, 150, 150, 255), 1.0f);
+        // draw horizontal line
+        p1 = this->world_to_screen(b2Vec2(range[0], x));
+        p2 = this->world_to_screen(b2Vec2(range[1], x));
+        pList->AddLine(p1, p2, IM_COL32(150, 150, 150, 255), 1.0f);
+    }
+
+
+}
+
 
 
 

@@ -17,6 +17,9 @@ void GUI::menuBar(bool* done) {
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("EduLab")) {
         ImGui::Separator();
+        if(ImGui::MenuItem("Show/Hide Grid", "G")) {
+            show_grid = !show_grid;
+        }
         if (ImGui::MenuItem("Exit", "Alt+F4" )) {
             *done = true;
         }
@@ -118,6 +121,7 @@ void GUI::info() {
         }
 
 void GUI::tools() {
+    joint_creation();
 
     ImGui::Begin("Body Creator");
 
@@ -181,24 +185,16 @@ void GUI::tools() {
 void GUI::mainViewport() {
 
 
-    ImGui::Begin("ImGui SDL Triangle",NULL,ImGuiWindowFlags_NoScrollWithMouse);
+    ImGui::Begin("Main Viewport",NULL,ImGuiWindowFlags_NoScrollWithMouse| ImGuiWindowFlags_NoTitleBar);
 
-    if (ImGui::BeginPopup("Name Popup", NULL)) {
-        ImGui::Text("Position: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_position().x,
-                    m_scene2DManager->get_highlighted_object()->get_position().y);
-        ImGui::Text("Velocity: (%.1f)", m_scene2DManager->get_highlighted_object()->get_velocity().Length());
-        ImGui::Text("Mass: %.1f", m_scene2DManager->get_highlighted_object()->get_mass());
-        if (ImGui::Button("OK", ImVec2(120, 0))) {
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
+
+
+
 
 
 
     Camera * cam = m_scene2DManager->get_current_scene()->get_camera();
     ImVec2 center = windowCenter();
-
     cam->sUpdate(center.x, center.y); // Update the camera based on ImGui IO within the ImGui window
 
     // User Input
@@ -231,16 +227,21 @@ void GUI::mainViewport() {
             cam->x -= ImGui::GetIO().MouseDelta.x;
             cam->y += ImGui::GetIO().MouseDelta.y;
         }
+        b2Vec2  object_pos(0,0);
         if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) != nullptr) {
             this->show_object_properties = true;
+            object_pos = m_scene2DManager->object_at_point(mousePos)->get_body()->GetPosition();
+
+
 
         }
         if (ImGui::IsMouseDoubleClicked(0)&& m_scene2DManager->object_at_point(mousePos) == nullptr) {
             this->show_object_properties = false;
+            object_pos = b2Vec2(0,0);
         }
 
         if(this->show_object_properties) {
-            ImGui::OpenPopup("Name Popup");
+            object_properties_popup(m_scene2DManager->world_to_screen(object_pos));
         }
 
 
@@ -267,11 +268,29 @@ void GUI::mainViewport() {
             clicked = false;
             m_scene2DManager->detach_mouse_joint();
         }
+
+
+        if (joint_creation_enabled && ImGui::IsMouseClicked(0) && clicks == 0){
+            clicks++;
+            pos1 = ImGui::GetMousePos();
+        }
+        else if(clicks == 1 && joint_creation_enabled && ImGui::IsMouseClicked(0)){
+            clicks = 0;
+            pos2 = ImGui::GetMousePos();
+            m_scene2DManager->connect(pos1, pos2,joint_creation_type);
+            std::cout << "Joint Created" << std::endl;
+        }
     }
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-    // Draw ui of highlighted object
+    // Draw grid inside the viewport
+
+    if (show_grid){
+        m_scene2DManager->draw_grid(draw_list);
+    }
+
+
 
 
     m_scene2DManager->draw_forces(draw_list, nullptr);
@@ -449,7 +468,7 @@ void GUI::editor(std::vector<std::string> *options) {
 
         if (option_restitution){
             ImGui::SetNextItemWidth(100);
-            if(ImGui::SliderFloat("Restitution", &restitution, -1.0f, 8.0f, "%.1f", 1.0f)){
+            if(ImGui::SliderFloat("Restitution", &restitution, -1.0f, 8.0f, "%.1f", 0.5f)){
                 m_scene2DManager->get_highlighted_object()->set_restitution(restitution);
             }
         }
@@ -457,18 +476,18 @@ void GUI::editor(std::vector<std::string> *options) {
         if (option_size){
             if (m_scene2DManager->get_highlighted_object()->get_shape() == 2){
                 ImGui::SetNextItemWidth(100);
-                if(ImGui::SliderFloat("Width", &size.x, 0.0f, 500.0f, "%.1f", 1.0f)){
+                if(ImGui::SliderFloat("Width", &size.x, 0.0f, 100.0f, "%.1f", 0.5f)){
                     m_scene2DManager->get_highlighted_object()->set_size(size);
                 }
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(100);
-                if(ImGui::SliderFloat("Height", &size.y, 0.0f, 500.0f, "%.1f", 1.0f)){
+                if(ImGui::SliderFloat("Height", &size.y, 0.0f, 100.0f, "%.1f", 0.5f)){
                     m_scene2DManager->get_highlighted_object()->set_size(size);
                 }
             }
             if (m_scene2DManager->get_highlighted_object()->get_shape() == 0){
                 ImGui::SetNextItemWidth(100);
-                if(ImGui::SliderFloat("Radius", &size.x, 0.0f, 500.0f, "%.1f", 1.0f)){
+                if(ImGui::SliderFloat("Radius", &size.x, 0.0f, 100.0f, "%.1f", 0.5f)){
                     m_scene2DManager->get_highlighted_object()->set_size(size);
                 }
             }
@@ -476,7 +495,7 @@ void GUI::editor(std::vector<std::string> *options) {
 
         if(option_density){
             ImGui::SetNextItemWidth(100);
-            if(ImGui::SliderFloat("Density", &density, 0.0f, 10.0f, "%.1f", 1.0f)){
+            if(ImGui::SliderFloat("Density", &density, 0.0f, 10.0f, "%.1f", 0.5f)){
                 m_scene2DManager->get_highlighted_object()->set_density(density);
             }
         }
@@ -518,19 +537,37 @@ void GUI::editor(std::vector<std::string> *options) {
     }
 }
 
-void GUI::object_properties_popup() {
+void GUI::object_properties_popup(ImVec2 pos) {
     if (m_scene2DManager->get_highlighted_object() == nullptr) return;
-
-    if (ImGui::BeginPopup("Name Popup", NULL)) {
+    ImGui::SetNextWindowPos(pos);
+    if (ImGui::Begin("Object Properties",NULL,ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar |ImGuiWindowFlags_NoNav)) {
         ImGui::Text("Position: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_position().x, m_scene2DManager->get_highlighted_object()->get_position().y);
         ImGui::Text("Velocity: (%.1f, %.1f)", m_scene2DManager->get_highlighted_object()->get_velocity().x, m_scene2DManager->get_highlighted_object()->get_velocity().y);
         ImGui::Text("Mass: %.1f", m_scene2DManager->get_highlighted_object()->get_mass());
-        if (ImGui::Button("OK", ImVec2(120, 0))) {
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
+        ImGui::End();
     }
-    ImGui::OpenPopup("Name Popup");
+
+}
+
+void GUI::joint_creation() {
+    ImGui::Begin("Joint Creation");
+    if (joint_creation_enabled){
+        if(ImGui::Button("Disable Joint Creation")){
+            joint_creation_enabled = false;
+    }
+    } else {
+        if(ImGui::Button("Enable Joint Creation")){
+            joint_creation_enabled = true;
+        }
+    }
+
+    if(ImGui::Button("Wheel Joint")){
+        joint_creation_type = 6;
+    }
+    if(ImGui::Button("Rev Joint")){
+        joint_creation_type = 1;
+    }
+    ImGui::End();
 }
 
 
