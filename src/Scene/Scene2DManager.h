@@ -17,6 +17,7 @@ private:
     Object2D * highlighted_object_ = nullptr;
     std::set<Object2D*> display_forces_;
     std::set<Object2D*> display_velocity_;
+    std::vector<std::string> editable_properties_ = {"ID", "Position", "velocity", "Mass", "density", "friction", "restitution", "size", "color","rotation","gravity"};
     bool running_ = false;
 public:
 
@@ -24,6 +25,7 @@ public:
     void reset_scene();
     void save_scene(std::string name);
     void load_scene(std::string name);
+    Object2D* objet_with_id(std::string id);
 
 
     void *CreateBox(float x, float y, float width, float height, b2BodyType bodyType, ImVec4 color, float angle = 0.0f,
@@ -46,6 +48,7 @@ public:
     void hide_force(Object2D *object);
     void hide_velocity(Object2D *object);
     void edit_object(b2Vec2 position, b2Vec2 size, float angle, float density, ImVec4 color);
+    std::vector<std::string> * get_editable_properties();
 
     void apply_force(b2Vec2 pos, b2Vec2 force);
 

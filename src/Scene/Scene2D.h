@@ -179,7 +179,7 @@ public:
     void deserialize(std::string filename);
 
     void connect_objects(Object2D* object1, Object2D* object2, int type, b2Vec2 point1, b2Vec2 point2);
-
+    std::vector<Connection2D*> get_connections() { return connections; }
 
 private:
     b2World* world_;

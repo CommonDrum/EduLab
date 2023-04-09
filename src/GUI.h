@@ -23,6 +23,8 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
+
+
 #include <Scene/Scene2DManager.h>
 
 
@@ -39,6 +41,7 @@ private:
     Object2D* selectedObject = nullptr;
     const char* glsl_version;
     ImGuiIO m_io;
+    UI_State state = UI_State::MAIN_MENU;
 
     Scene2DManager* m_scene2DManager;
     float delta_time = 1.0f / ImGui::GetIO().Framerate;
@@ -55,13 +58,14 @@ private:
 
 
 
+
 public:
     void start(bool *done);
     void editor(bool *done);
     void play(bool *done);
     explicit GUI(Scene2DManager* scene2DManager);
     void tools();
-    void editor(std::vector<std::string> * options);
+    void object_editor(std::vector<std::string> * options);
     void object_properties_popup();
     void info();
     void file_explorer(std::string *selectedFilename);
@@ -69,6 +73,7 @@ public:
     ImVec2 windowCenter();
     void joint_creation();
     void force_application();
+
 
     void mainViewport();
 

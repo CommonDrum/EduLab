@@ -107,9 +107,11 @@ void GUI::info() {
 
     std::string name = m_scene2DManager->get_current_scene()->get_name();
     ImGui::Text("Scene Name: %s", name.c_str());
-
-    std::vector<std::string> editor_options = { "rotation", "color", "density", "friction", "restitution","vectors","size"};
-    this->editor(&editor_options);
+    std::vector<std::string> editor_options = { "rotation", "color", "density", "friction", "restitution","vectors","size","gravity"};
+    if (state == UI_State::PLAY){
+        editor_options = *m_scene2DManager->get_editable_properties();
+    }
+    this->object_editor(&editor_options);
     ImGui::SameLine();
 
 
@@ -153,6 +155,9 @@ void GUI::tools() {
 
     ImGui::Combo("Body Shape", &bodyShapeIdx, bodyShapes, IM_ARRAYSIZE(bodyShapes));
     ImGui::Combo("Body Type", &bodyTypeIdx, bodyTypes, IM_ARRAYSIZE(bodyTypes));
+
+    ImGui::InputFloat("X", &x);
+    ImGui::InputFloat("Y", &y);
 
 
     ImGui::SliderFloat("Rotation", &rotation, -1.f, 1.f);
@@ -256,6 +261,7 @@ void GUI::mainViewport() {
             clicked = true;
         }
         else if(ImGui::IsMouseClicked(0) && m_scene2DManager->running) {
+            m_scene2DManager->highlight_object_click(mousePos);
             m_scene2DManager->attach_mouse_joint(mousePos);
             clicked = true;
         }
@@ -339,7 +345,53 @@ void GUI::editor(bool *done) {
 }
 
 void GUI::play(bool *done) {
+    // Choose a scene to play
+    if (state == UI_State::MAIN_MENU){
+        ImGui::OpenPopup("File Popup");
+        m_scene2DManager->running = true;
+        state = UI_State::PLAY;
+
+    }
+
+
+    if (ImGui::BeginPopupModal("File Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        static std::set<std::string> filenames;
+        const std::string directoryPath = "."; // Current directory
+        for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
+            if (entry.is_regular_file()) {
+                filenames.insert(entry.path().filename().string());
+            }
+        }
+
+        static int selectedFileIndex = -1;
+        int i = 0;
+        for (const auto& filename : filenames) {
+            const bool isSelected = (selectedFileIndex == i);
+            if (ImGui::Selectable(filename.c_str(), isSelected)) {
+                selectedFileIndex = i;
+                const auto it = std::next(filenames.begin(), selectedFileIndex);
+                const std::string selectedFilename = *it;
+                m_scene2DManager->load_scene(selectedFilename);
+
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+            i++;
+        }
+
+        if (ImGui::Button("OK", ImVec2(120, 0)) && selectedFileIndex >= 0) {
+            const auto it = std::next(filenames.begin(), selectedFileIndex);
+            const std::string selectedFilename = *it;
+            m_scene2DManager->load_scene(selectedFilename);
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
     mainViewport();
+    info();
 
 }
 
@@ -404,7 +456,7 @@ void GUI::file_explorer(std::string *selectedFilename) {
 
 }
 
-void GUI::editor(std::vector<std::string> *options) {
+void GUI::object_editor(std::vector<std::string> *options) {
 
     // Editor interface for editing the highlighted object
     // Displayed options are determined by the options vector
@@ -456,15 +508,18 @@ void GUI::editor(std::vector<std::string> *options) {
         b2Vec2 size = m_scene2DManager->get_highlighted_object()->get_size();
         float density = m_scene2DManager->get_highlighted_object()->get_density();
         float gravity = m_scene2DManager->get_current_scene()->get_world()->GetGravity().y;
-        float rotation = m_scene2DManager->get_highlighted_object()->get_angle();
+        int rotation = static_cast<int>(m_scene2DManager->get_highlighted_object()->get_angle() * 180.0f / b2_pi);
+        int stepSize = 5; // Set the desired step size in degrees
+        int scaledAngle = rotation / stepSize;
         float restitution = m_scene2DManager->get_highlighted_object()->get_restitution();
         float friction = m_scene2DManager->get_highlighted_object()->get_friction();
         ImVec4 color = m_scene2DManager->get_highlighted_object()->get_color();
 
         if (option_rotation){
             ImGui::SetNextItemWidth(100);
-            if(ImGui::SliderFloat("Rotation", &rotation, 0.0f, 6.4f, "%.1f", 1.0f)){
-                m_scene2DManager->get_highlighted_object()->set_angle(rotation);
+            if(ImGui::SliderInt("Rotation", &scaledAngle, 0, 360 / stepSize, "%.1f")){
+                rotation = scaledAngle * stepSize;
+                m_scene2DManager->get_highlighted_object()->set_angle((float)rotation* b2_pi / 180.0f);
             }
         }
         if (option_color){

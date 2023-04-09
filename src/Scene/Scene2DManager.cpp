@@ -200,6 +200,16 @@ void Scene2DManager::draw_scene(ImDrawList *draw_list) {
             
         }
 
+        for (auto connection : get_current_scene()->get_connections()){
+
+            Object2D * object1 = objet_with_id(connection->get_ID_1());
+            Object2D * object2 = objet_with_id(connection->get_ID_2());
+                b2Vec2 pos1 = object1->get_position();
+                b2Vec2 pos2 = object2->get_position();
+                draw_list->AddLine(world_to_screen(pos1), world_to_screen(pos2), im_color, 2.0f);
+
+        }
+
         if (item->is_showing_velocity()){
             draw_velocity( draw_list,item);
         }
@@ -477,6 +487,14 @@ void Scene2DManager::draw_grid(ImDrawList *pList) {
 void Scene2DManager::apply_force(b2Vec2 pos, b2Vec2 force) {
     Object2D * object = object_at_point(pos);
     object->add_force(force);
+}
+
+std::vector<std::string> * Scene2DManager::get_editable_properties() {
+    return & editable_properties_;
+}
+
+Object2D *Scene2DManager::objet_with_id(std::string id) {
+    return current_scene_->get_object(id);
 }
 
 
