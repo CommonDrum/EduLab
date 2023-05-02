@@ -17,7 +17,7 @@ endif()
 
 
 add_subdirectory(vendor/box2d)
-add_subdirectory(vendor/glm)
+
 
 
 
