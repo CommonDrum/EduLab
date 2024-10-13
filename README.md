@@ -18,13 +18,13 @@ I do not provide binaries so you have to complile the program from source. Here 
    ```make``` tool with Unix based systems.
 
 ## Showcase
-### Gas Particle Simulation
+### Colider Simulation
 <p align="center">
   <img src="https://github.com/CommonDrum/EduLab/blob/dev/collision%20simulation?raw=true" alt="gas"/>
 </p>
 
 
-### Colider Simulation
+### Gas Particle Simulation
 <p align="center">
   <img src="https://github.com/CommonDrum/EduLab/blob/dev/gas%20simulation?raw=true" alt="col"/>
 </p>
